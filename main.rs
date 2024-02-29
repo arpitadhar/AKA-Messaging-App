@@ -1,3 +1,5 @@
+use std::fs;
+use std::io::Write;
 use axum::{
     body::Body,
     response::{IntoResponse, Response},
@@ -5,13 +7,18 @@ use axum::{
     http::StatusCode,
     Json, Router,
 };
+use tokio::fs::OpenOptions;
 use serde::{Deserialize, Serialize};
 use tower_http::{
     trace::TraceLayer,
     cors::CorsLayer};
 
+
+
 #[tokio::main]
+
 async fn main() {
+
     // initialize tracing
     tracing_subscriber::fmt::init();
 
@@ -40,11 +47,14 @@ async fn create_message(
     // as JSON into a `CreateMessage` type
     Json(payload): Json<CreateMessage>,
 ) -> (StatusCode, Json<Message>) {
-    // insert your application logic here
+
     let message = Message {
         username: payload.username,
         message: payload.message,
     };
+
+
+    append_string_to_file("text.json", serde_json::to_string_pretty(&message).unwrap()).expect("Unable to read file");
 
     // this will be converted into a JSON response
     // with a status code of `201 Created`
@@ -52,19 +62,38 @@ async fn create_message(
 }
 
 // Handler for /messages
-async fn list_messages() -> Json<Vec<Message>> {
-    let users = vec![
-        Message {
-            username: "Real_American_Patriot".to_string(),
-            message: "Elijah".to_string(),
-        },
-        Message {
-            username: "Name".to_string(),
-            message: "John".to_string(),
-        },
-    ];
-    Json(users)
+async fn list_messages() -> Json<String> {
+
+    let data = fs::read_to_string("text.json").expect("Unable to read file");
+    println!("{}", data);
+
+    //let users = vec![
+    //    Message {
+    //        username: "Real_American_Patriot".to_string(),
+    //        message: "Elijah".to_string(),
+    //    },
+    //    Message {
+    //        username: "Name".to_string(),
+    //        message: "John".to_string(),
+    //    },
+    //];
+    Json(data)
 }
+
+
+fn append_string_to_file(path: &str, data: String) -> Result<(), Box<dyn std::error::Error>> {
+    let mut file = fs::OpenOptions::new().create(true).append(true).open(&path)?;
+
+    // You need to take care of the conversion yourself
+    // and can either try to write all data at once
+    file.write_all(&data.as_bytes())?;
+
+    file.write(b"\n")?;
+    file.flush()?;
+
+    Ok(())
+}
+
 
 // the input to our `create_message` handler
 #[derive(Deserialize)]
@@ -73,7 +102,7 @@ struct CreateMessage {
     message: String
 }
 
-// the output to our `create_user` handler
+// the output to our `create_message` handler
 #[derive(Serialize)]
 struct Message {
     username: String,
