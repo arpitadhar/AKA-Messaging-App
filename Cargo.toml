@@ -7,6 +7,10 @@ edition = "2021"
 
 [dependencies]
 axum =  "*"
+chrono = "0.4.34"
+diesel = { version = "2.1.4", features = ["postgres"] }
+dotenvy = "0.15.7"
+
 postgres = "0.19.7"
 serde = { version = "1.0.197", features = ["derive"] }
 serde-jsonlines = "0.5.0"
