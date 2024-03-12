@@ -1,5 +1,6 @@
-//use std::fs;
-//use std::io::Write;
+use std::fs;
+use std::io::Write;
+
 use axum::{
     routing::{get, post},
     http::StatusCode,
@@ -10,7 +11,6 @@ use tower_http::{
     trace::TraceLayer,
     cors::CorsLayer};
 
-pub mod schema;
 
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -18,6 +18,10 @@ use dotenvy::dotenv;
 use std::env;
 use diesel::insert_into;
 
+pub mod schema;
+pub mod models;
+use crate::models::Messages;
+use crate::models::Users; 
 
 #[tokio::main]
 
@@ -33,6 +37,10 @@ async fn main() {
         .route("/create-message", post(create_message))
         //GET /message` goes to list_message()
         .route("/messages", get(list_messages))
+        //POST /create-user goes to create_user()
+        .route("/create-users", post(create_user))
+        //GET /users goes to list_users()
+        .route("/users", get(list_users))
         //allows frontend to communicate with backend
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http());
@@ -55,7 +63,7 @@ async fn create_message(
     //establish database connection and insert values into messages table
     let connection = &mut establish_connection();
 
-    let info = insert_message(connection, &payload.username, &payload.message);
+    insert_message(connection, &payload.username, &payload.message);
 
     let new_message = Message {
         username: payload.username,
@@ -63,7 +71,7 @@ async fn create_message(
     };
 
 
-    //append_string_to_file("text.json", serde_json::to_string_pretty(&new_message).unwrap()).expect("Unable to read file");
+    append_string_to_file("text.json", serde_json::to_string_pretty(&new_message).unwrap()).expect("Unable to read file");
 
     //status code 201 Created
     (StatusCode::CREATED, Json(new_message))
@@ -80,6 +88,46 @@ async fn list_messages()  -> (StatusCode, Json<String>) {
     
     //serialize query response to json string
     let response_json = serde_json::to_string(&message_response).expect("Error serializing");
+
+    //status code 200 Ok
+    (StatusCode::OK, Json(response_json))
+}
+
+async fn create_user(
+    //Parse the request body into a <CreateMessage> type
+    Json(payload): Json<CreateUser>,
+) -> (StatusCode, Json<User>) {
+
+    //establish database connection and insert values into messages table
+    let connection = &mut establish_connection();
+
+    insert_user(connection, &payload.username, &payload.first_name, &payload.last_name, &payload.email, &payload.password); 
+    //println!("{&payload.username, &payload.first_name, &payload.last_name, &payload.email, &payload.password:?}"); 
+    let new_user = User{
+        username: payload.username, 
+        first_name: payload.first_name, 
+        last_name: payload.last_name, 
+        email: payload.email, 
+        password: payload.password, 
+    }; 
+    
+    append_string_to_file("users.json", serde_json::to_string_pretty(&new_user).unwrap()).expect("Unable to read file");
+
+    (StatusCode::CREATED, Json(new_user))
+
+}
+
+async fn list_users()  -> (StatusCode, Json<String>) {
+
+    //establish database connection and insert values into users table    
+    let connection = &mut establish_connection();
+
+    let user_response = show_users(connection);
+
+    println!("{:?}", user_response);
+    
+    //serialize query response to json string
+    let response_json = serde_json::to_string(&user_response).expect("Error serializing");
 
     //status code 200 Ok
     (StatusCode::OK, Json(response_json))
@@ -105,6 +153,20 @@ async fn list_messages()  -> (StatusCode, Json<String>) {
 //this is should be a module from lib.rs
 //
 //connect to postgres using a url made up of 'postgres://[username]:[password]@localhost/[db_name]'
+ fn append_string_to_file(path: &str, data: String) -> Result<(), Box<dyn std::error::Error>> {
+        let mut file = fs::OpenOptions::new().create(true).append(true).open(&path)?;
+    
+        // You need to take care of the conversion yourself
+        // and can either try to write all data at once
+        file.write_all(&data.as_bytes())?;
+    
+        file.write(b"\n ,")?;
+        file.flush()?;
+    
+        Ok(())
+    }
+
+
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
 
@@ -123,12 +185,43 @@ pub fn insert_message(conn: &mut PgConnection, username: &str, message_text: &st
         .expect("Error inserting messages");
 }
 
+//insert into users table 
+// fn insert_user(conn2: &mut PgConnection, username_input: &str, first_name_input: &str, last_name_input: &str, email_input: &str, password_input: &str) -> QueryResult<usize>{
+//     use schema::users::dsl::*;
+
+//     insert_into(users)
+//         .values((username.eq(username_input), password.eq(password_input), first_name.eq(first_name_input), last_name.eq(last_name_input), email.eq(email_input)))
+//         .execute(conn2)
+//         .expect("Error inseting messages");
+//     }
+//changed the return type for this previous function keeps causing errors
+fn insert_user(conn2: &mut PgConnection, username_input: &str, first_name_input: &str, last_name_input: &str, email_input: &str, password_input: &str) -> Result<usize, diesel::result::Error> {
+        use schema::users::dsl::*;
+    
+        let rows_inserted = insert_into(users)
+            .values((username.eq(username_input), password.eq(password_input), first_name.eq(first_name_input), last_name.eq(last_name_input), email.eq(email_input)))
+            .execute(conn2)?;
+    
+        Ok(rows_inserted)
+}
+
 //select * from messages
 pub fn show_messages(conn: &mut PgConnection) -> Vec<Messages> {
     use schema::messages::dsl::*;
 
     let results = messages
         .load::<Messages>(conn)
+        .expect("Error loading messages");
+
+    return results;
+}
+
+//select * from users 
+pub fn show_users(conn: &mut PgConnection) -> Vec<Users> {
+    use schema::users::dsl::*;
+
+    let results = users
+        .load::<Users>(conn)
         .expect("Error loading messages");
 
     return results;
@@ -142,24 +235,27 @@ struct CreateMessage {
 }
 
 // the output to our `create_message` handler
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct Message {
     username: String,
     message: String,
 }
 
+#[derive(Deserialize, Debug)]
+struct CreateUser {
+    username: String,
+    first_name: String, 
+    last_name: String, 
+    email: String, 
+    password: String
+}
 
-//ABSOLUTELY VERY BAD NOT GOOD PRACTICE
-//this is a last resort, again I should use 'mod models'
-//but module not found?
-//need to figure out how modules work
-use diesel::{Queryable, Selectable};
+#[derive(Serialize, Debug)]
+struct User {
+    username: String,
+    first_name: String, 
+    last_name: String, 
+    email: String, 
+    password: String
 
-#[derive(Queryable, Selectable, Serialize, Debug)]
-#[diesel(table_name = crate::schema::messages)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Messages {
-    pub id: i32,
-    pub user_id: String,
-    pub message: String,
 }
