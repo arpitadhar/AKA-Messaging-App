@@ -11,13 +11,13 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Int4,
-        is_admin -> Nullable<Bool>,
+        //is_admin -> Nullable<Bool>,
         username -> Text,
         first_name -> Text,
         last_name -> Text,
         email -> Text,
         password -> Text,
-        created_at -> Timestamp,
+        //created_at -> Timestamp,
     }
 }
 
