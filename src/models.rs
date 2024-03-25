@@ -9,6 +9,7 @@ pub struct Messages {
     pub id: i32,
     pub user_id: String,
     pub message: String,
+    pub conversation_id: String,
 }
 use diesel::{Queryable, Selectable};
 #[derive(Queryable, Selectable, Serialize, Debug)]
@@ -21,4 +22,13 @@ pub struct Users {
     pub last_name: String, 
     pub email: String,
     pub password: String,
+}
+
+#[derive(Queryable, Selectable, Serialize, Debug)]
+#[diesel(table_name = crate::schema::conversations)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Conversations {
+    pub id: String,
+    pub user1_id: String,
+    pub user2_id: String,
 }

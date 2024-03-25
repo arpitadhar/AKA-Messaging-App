@@ -1,0 +1,17 @@
+{
+  "conversation_id": "ab"
+}
+ ,{
+  "conversation_id": "ac"
+}
+ ,{
+  "conversation_id": "ab",
+  "user1_id": "a",
+  "user2_id": "b"
+}
+ ,{
+  "conversation_id": "bc",
+  "user1_id": "c",
+  "user2_id": "b"
+}
+ ,

@@ -58,4 +58,24 @@ window.onload=function(){
         })
 
     });
+
+    //Event listener to the "sumbitPost" button
+    document.getElementById("login").addEventListener("click", function () {
+        //Get the message from the textarea
+        const email_input = document.getElementById("email").value;
+        const password_input = document.getElementById("password").value;
+
+        fetch("http://localhost:3000//login", {
+            method: "POST",
+            body: JSON.stringify({
+            email: email_input,
+            password: password_input,
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+        .then((response) => response.json())
+        .then((json) => console.log(json));
+    });
 }
