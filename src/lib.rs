@@ -1,23 +1,18 @@
-//use diesel::pg::PgConnection;
-//use diesel::prelude::*;
-//use dotenvy::dotenv;
-//use std::env;
-//use diesel::insert_into;
-//
-//
-//pub fn establish_connection() -> PConnection {
-//    dotenv().ok();
-//
-//    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-//    PgConnection::establish(&database_url)
-//        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
-//}
-//
-//fn insert_message(conn: &mut PgConnection, username: &str, message_text: &str) -> QueryResult<usize> {
-//    use schema::messages::dsl::*;
-//
-//    insert_into(messages)
-//        .values((user_id.eq(username), message.eq(message_text)))
-//        .execute(conn)
-//}
-//
+use router::create_router;
+use tracing::info;
+pub use self::error::{Error, Result};
+use tracing_subscriber::FmtSubscriber;
+
+mod router;
+mod routes;
+mod database;
+mod error;
+
+pub async fn run() {
+    tracing::subscriber::set_global_default(FmtSubscriber::default());
+    let app = create_router();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    println!("->> LISTENING on {:?}\n", listener.local_addr());
+    axum::serve(listener, app).await.unwrap();
+    info!("Starting Server!");
+}
