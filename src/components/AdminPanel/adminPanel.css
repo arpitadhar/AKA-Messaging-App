@@ -1,0 +1,70 @@
+.grid-container{
+    display: flex; 
+    flex-direction: column; 
+    width: 100vw; 
+    height: 100vh; 
+    background: url('/Users/arpitadhar/Downloads/AKA-Messaging-App-new-react/vite-project/src/northern-lights.jpg')
+    no-repeat;
+    background-size: cover;
+    background-position: center;
+    font: white; 
+}
+
+.appHeader{
+    height: 70px; 
+    display: flex; 
+    align-items: center;
+    padding: 4px; 
+    border-bottom: 1px solid white;
+    background-color: rgba(209, 213, 219, 0.5);
+    justify-content: center;
+    font: white; 
+    color: white; 
+
+}
+
+.appHeader>img{
+    width: 3rem;
+    height: 10rem; 
+}
+
+.space{
+    margin-top: 20px; 
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start; 
+}
+
+.menu{
+    border-right: 1px solid rgba(255, 255, 255, 0);
+}
+
+.menu1{
+    background-color:  rgba(176, 241, 202, 0.5);
+    width: 300px; 
+    float: top; 
+     
+}
+.SideMenu{
+    margin-top: -20px; 
+    height: 100vh; 
+    background-color:  rgba(176, 241, 202, 0.5);
+}
+
+.pageContent{
+    background-color:  transparent;
+    border-radius: 30px; 
+    width: 1200px; 
+    height: 90vh; 
+    margin-top: -20px; 
+    display: inline-flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.boxes{
+    background-color: rgba(176, 241, 202, 0.5);
+    height: 150px;
+    width: 150px; 
+    border-radius: 30px; 
+}
