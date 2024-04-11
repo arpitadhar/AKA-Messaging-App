@@ -10,7 +10,7 @@ Diesel crate:
 Exit code issue:
 - https://youtu.be/EkI0AmHmZT8?si=3c48bsWSo-yrrFNT&t=1484
 
-## Intsructions for setting up on local machine
+## Instructions for setting up on local machine
 
 1. Download RUST and make sure it is updated to its latest version (check rustc --version) 
 2. Download files from main branch (front-end, migration, etc)
