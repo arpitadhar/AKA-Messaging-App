@@ -15,3 +15,17 @@ email       TEXT NOT NULL UNIQUE CHECK (POSITION('@' IN EMAIL) > 1),
 password    TEXT NOT NULL,
 created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- New flagged user table
+CREATE TABLE flaged_messages (
+id          SERIAL PRIMARY KEY,
+user_id     TEXT NOT NULL REFERENCES users(id),
+message     TEXT NOT NULL
+);
+
+-- User Images
+CREATE TABLE user_images (
+    id              SERIAL PRIMARY KEY,
+    profile_image   BYTEA,
+    user_id         INT REFERENCES users(id)
+);
