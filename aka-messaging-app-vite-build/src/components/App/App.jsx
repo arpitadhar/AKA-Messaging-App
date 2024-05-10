@@ -6,6 +6,8 @@ import RegistrationPage from "../RegistrationPage/RegistrationPage";
 import NotFound from "../NotFound/NotFound";
 import AccessForbidden from "../AccessForbidden/AccessForbidden";
 import LandingPage from "../LandingPage/LandingPage";
+import UserProfile from "../UserProfile/UserProfile";
+import Admin from "../Admin/Admin"
 
 import './App.css';
 import Navbar from "../Navbar/Navbar";
@@ -19,7 +21,7 @@ export default function AppContainer() {
 
 
 function App() {
-  const [user, setUser] = useState(false);
+  const [user, setUser] = useState(true);
   return (
     <div className="App">
       <BrowserRouter>
@@ -35,6 +37,8 @@ function App() {
           <Route path="/register" element={<RegistrationPage 
                                             user={user}
                                             setUser={setUser} />} />
+          <Route path="/user" element={<UserProfile user={user}/>}/>
+          <Route path="/admin" element={<Admin user={user}/>}/>
           <Route path="*" element={<NotFound />} />
           <Route path="/denied" element={<AccessForbidden />} />
         </Routes>

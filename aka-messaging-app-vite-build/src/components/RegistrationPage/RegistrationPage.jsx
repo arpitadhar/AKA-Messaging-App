@@ -27,14 +27,7 @@ export function RegistrationForm(props) {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState(false);
-    //const [values, setValues] = useState({
-    //  email: "",
-    //  username: "",
-    //  firstName: "",
-    //  lastName: "",
-    //  password: "",
-    //  confirmPassword: "",
-    //});
+
   
     const handleEmailChange = (event) => {
         setEmail(event.target.value);

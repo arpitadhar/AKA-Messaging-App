@@ -12,24 +12,31 @@ export default function LandingPage(props) {
          props.user ? 
 
          <div id="root">
-         <h1 class="display-1 text-white">AKA Messaging</h1>
-         <div id="outer-display">
-             <div id="inner-display">
-             </div>
-         </div>
-         <div id="outer-input">
-             <div>
-                 <form>
-                     <h2 class="text-white"><label for="display-name">Display Name:</label></h2>
-                     <h5 class="text-white">@newUser</h5>
-                 </form>
-                 <h2 class="text-white">Message:</h2>
-                 <textarea type="text" id="message"></textarea>
-                 <br/>
-                 <button id="submitPost" class="text-white btn btn-success"> Post </button>
-             </div>
-         </div>
-     </div>
+         <div class="container">
+        <div class="sidebar">
+            <h1>AKA</h1>
+            <h2>Start new conversation</h2>
+            <form id="createConversationForm">
+                <input type="text" id="receiverName" name="receiverName" placeholder="Search for user..."/>
+                <button type="submit">Start Conversation</button>
+            </form>
+            <div id="conversationListContainer">
+                <h2>Your Conversations</h2>
+                <ul class = "conversation-list" id = "conversationsList" >
+                </ul>
+            </div>
+        </div>
+        <div class="main">
+            <div id="inner-display"></div>
+            <div class="form">
+                <form id="sendMessageForm">
+                    <textarea name="message" id="message" placeholder="Type your message here"></textarea>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
      :
      <div className="landing-page">
             <div className="landing-page-content" >

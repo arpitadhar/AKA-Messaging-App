@@ -4,10 +4,12 @@ import { Link , useNavigate} from "react-router-dom"
 import "./Navbar.css"
 
 export default function Navbar(props) {
-    console.log(props.user);
+
+    const navigate = useNavigate();
+
     const clickHandler = (event) => {
-        console.log(props.user);
         props.setUser(false);
+        navigate("/");
     }
 
     return (
@@ -17,8 +19,14 @@ export default function Navbar(props) {
             <div class="px-3">
                 {props.user ? 
 
-                    <button class="btn btn-success my-2 my-sm-0"  type="button" onClick={clickHandler}>Logout</button>
+                    <div>
+                        <Link id="log-link" to="/user">
+                            <button class="btn btn-outline-success my-2 my-sm-0"  type="button">Profile</button>
+                        </Link>
+                        sd
+                        <button class="btn btn-success my-2 my-sm-0"  type="button" onClick={clickHandler}>Logout</button>
 
+                    </div>
                 :
                     <div>
                     <Link id="log-link" to="/login">
