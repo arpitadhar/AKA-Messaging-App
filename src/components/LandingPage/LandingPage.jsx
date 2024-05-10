@@ -7,7 +7,7 @@ export default function LandingPage(props) {
    const navigate = useNavigate(); 
    
    return (
-      <div>
+      <div style={{ fontFamily: 'Rubik, sans-serif' }}>
       {
          props.user ? 
 
@@ -31,25 +31,18 @@ export default function LandingPage(props) {
          </div>
      </div>
      :
-     <div className = "container">
-        <form action="">
-        <div className = "header">
-            <div className = "text">Welcome</div>
-            <div className = "underline"></div>
+     <div className = "containerLanding" style={{ fontFamily: 'Rubik, sans-serif' }}>
+        <div className="welcome-div" >
+        <h1 className="welcome">Welcome</h1>
         </div>
+        <div className="under_welcome">
+        <Link to="/login"><button className="btn glass">Login</button></Link>
         <br></br>
         <div>
-        <button><a href = "/login">Login</a></button>
+        <Link to="/register"><button className="btn glass">Register</button></Link>
         </div>
-        <br></br>
-        <div>
-        <button><a href="/register">Register</a></button>
+        <Link to="/aboutus"><button className="btn glass">About Us</button></Link>
         </div>
-        <br></br>
-        <div>
-        <button><a href = "/aboutus">About Us</a></button>
-        </div>
-        </form>
       </div>
    }
    </div>

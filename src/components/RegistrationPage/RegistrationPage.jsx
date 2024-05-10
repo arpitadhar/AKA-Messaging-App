@@ -17,7 +17,8 @@ export default function RegistrationPage(){
             const newPassword = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirm_password").value; 
             const newEmail = document.getElementById("email").value; 
-            
+            const defaultToken = "no_token"; 
+
             if (newPassword == '' || confirmPassword == ''){
                 alert("Please enter a password"); 
                 return false; 
@@ -46,6 +47,8 @@ export default function RegistrationPage(){
                 last_name: newLastName, 
                 password: newPassword,
                 email: newEmail,
+                token: defaultToken, 
+
                 }),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
@@ -75,7 +78,7 @@ export default function RegistrationPage(){
         }, []); 
     return(
         <body id = "registration_body">
-        <div className = "container" id = "registration_container">
+        <div className = "container" id = "registration_container" style={{ fontFamily: 'Rubik, sans-serif' }}>
         <form action="">
         <div className = "header" id="reg-header">
             <div className = "text">Register</div>

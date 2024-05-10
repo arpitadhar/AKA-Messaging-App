@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from 'react-dom/client';
 import "./LoginPage.css";
+import {useLogin} from '/Users/arpitadhar/Downloads/AKA-Messaging-App-new-react/vite-project/src/context/login-provider.jsx';
 
 export default function LoginPage(props){
+ // const {setIsLoggedIn} = useLogin()
   console.log(props.user);
   const navigate = useNavigate();
   if(props.user) {
@@ -33,9 +35,12 @@ export default function LoginPage(props){
             return response.json();
         })
         .then(data => {
-            // Display response as an alert
-            alert("Login successful. Welcome!");
-            window.location.href = "/chat";
+           sessionStorage.setItem("username", data);
+           alert("Login successful. Welcome " + sessionStorage.getItem("username"));
+           //setIsLoggedIn(true); 
+           if(sessionStorage.username) {
+              window.location.href = "/chat";
+           }
         })
         .catch(error => {
             console.error("Error during login:", error);
@@ -54,7 +59,7 @@ export default function LoginPage(props){
   
   return(
     <body id="registration_body">
-    <div className = "container" id = "registration_container">
+    <div className = "container" id = "registration_container" style={{ fontFamily: 'Rubik, sans-serif' }}>
       <form action="">
       <div className = "header" id="reg-header">
           <div className = "text">Login</div>
@@ -69,7 +74,7 @@ export default function LoginPage(props){
           </div> 
       </div>
       <div className = "forgotPassword">
-          <a href="#">Forgot Password?</a>
+          <a href="/forgot">Forgot Password?</a>
       </div>
       <button id ="Login">Login</button>
       <div className="Register">

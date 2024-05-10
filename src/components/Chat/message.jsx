@@ -6,7 +6,7 @@ const Message = () => {
             <div className='w-10 rounded-full'>
             <span>JD</span>
             </div>
-        </div>
+        </div>  
         <div className={`chat-bubble text-white bg-blue-500`} id = 'messagesContainer'>Hi! Hello!</div>
         <div className='chat-footer opacity-50 text-xs flex gap-1 items-center'>12:42</div>
     </div>

@@ -12,7 +12,9 @@ import Navbar from "../Navbar/Navbar";
 import AdminPanel from "../AdminPanel/adminPanel";
 import Chat from "../Chat/chat";
 import Users from "../AdminPanel/adminRoutes/users"; 
+import ForgotPassword from "../ForgotPassword/forgot";
 import {} from "antd"; 
+import VerifyCode from "../ForgotPassword/verify_code";
 
 export default function AppContainer() {
   return (
@@ -38,6 +40,8 @@ function App() {
           <Route path="/register" element={<RegistrationPage 
                                             user={user}
                                             setUser={setUser} />} />
+          <Route path="/forgot" element={<ForgotPassword />} />
+          <Route path="/verify" element={<VerifyCode />} /> 
           <Route path="/chat" element={<Chat />} />
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/adminpanel" element={<AdminPanel/>} />

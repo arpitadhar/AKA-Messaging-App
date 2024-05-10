@@ -1,8 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
 *{
     margin: 0; 
     padding: 0; 
     box-sizing: border-box;
 }
+
+/* @font-face {
+    font-family: 'Rubik';
+    font-weight: normal;
+    font-style: normal;
+} */
 
 .scence{
     position: relative; 
@@ -38,4 +46,53 @@
     margin-top: 1%;
     padding: 1%;
     
+}
+
+.containerLanding{ 
+    height: 100vh; 
+    width: 100%; 
+    /* background: linear-gradient(45deg, #15251D, #80A416, #30833B, #032820, #0E1211); */
+    /* background: linear-gradient(45deg, #443E46, #F6DEB8, #908CA4, #57659E, #C57284, #FF5B60);  */
+    background: linear-gradient(45deg, #97D1Ab, #417165, #5D3B5A, #341C36, #2A142C); 
+    background-size: 300% 300%; 
+    animation: color 7s ease-in-out infinite;  
+    align-items: center; 
+    justify-content: center;
+    flex-direction: column;
+    display: flex; 
+}
+
+@keyframes color{ 
+    0%{
+        background-position: 0 50%; 
+    }
+    50%{
+        background-position: 100% 50%; 
+    }
+    100%{
+        background-position: 0 50%; 
+    }
+}
+.welcome-div{
+    margin-top: -250px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    height: 100vh; 
+}
+.welcome{ 
+    text-align: center;
+    padding: center; 
+    font-size: 150px; 
+    color: white; 
+}
+
+.glass{
+    color: white; 
+    font-size: 20px; 
+}
+
+.under_welcome{
+    margin-top: -230px;
+    display: flex; 
 }
