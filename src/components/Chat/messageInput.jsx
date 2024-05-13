@@ -1,4 +1,4 @@
-import { BsSend } from "react-icons/bs"; 
+//import { BsSend } from "react-icons/bs"; 
 import { useEffect, useState } from "react";
 const MessageInput = () => {
   
@@ -70,11 +70,14 @@ const MessageInput = () => {
     }, []); 
   return(
     <form className='inputMessage'>
-        <div className = 'messageInput'>
+        <div className = "messageInput">
+                <input id="message" type = "message" placeholder='type a message!' required></input>
+        </div> 
+        {/* <div className = 'messageInput'>
             <input type = "text" placeholder = 'Send a message' id = "message"></input>
             <botton type = "submit"></botton>
             <BsSend className="sendButton"/> 
-        </div>
+        </div> */}
     </form>
   )
 
