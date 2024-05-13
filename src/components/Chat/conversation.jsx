@@ -1,5 +1,5 @@
 import "./conversation.css"
-import useConversation from '../../zustand/useConversation'; 
+//import useConversation from '../../zustand/useConversation'; 
 
 
 const Conversation = ({conversation, lastIdx}) => {
