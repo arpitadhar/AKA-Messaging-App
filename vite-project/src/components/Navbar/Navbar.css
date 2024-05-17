@@ -1,0 +1,39 @@
+.theme-controller {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.swap {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+}
+
+/* Additional styling for the icons */
+.swap svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Hide one of the icons initially */
+.swap-on {
+    display: none;
+}
+
+/* Show the appropriate icon based on the state of the checkbox */
+.swap-rotate .theme-controller:checked + .swap-on {
+    display: inline-block;
+}
+
+.swap-rotate .theme-controller:not(:checked) + .swap-off {
+    display: inline-block;
+}
+
+
+#moon:hover{
+    background-color: rgba(209, 213, 219, 0.5);
+}
