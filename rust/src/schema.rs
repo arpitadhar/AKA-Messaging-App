@@ -12,8 +12,8 @@ diesel::table! {
     messages (id) {
         id -> Int4,
         user_id -> Text,
-        conversation_id -> Text,
         message -> Text,
+        conversation_id -> Text,
     }
 }
 
