@@ -1,0 +1,1 @@
+(ColumnInsertValue<schema::messages::columns::username, schema::messages::columns::username>, ColumnInsertValue<schema::messages::columns::message, diesel::expression::bound::Bound<diesel::sql_types::Text, &str>>, ColumnInsertValue<schema::messages::columns::conversation_id, diesel::expression::bound::Bound<diesel::sql_types::Text, &str>>)

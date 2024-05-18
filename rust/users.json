@@ -1,0 +1,17 @@
+{
+  "username": "hello",
+  "first_name": "hello",
+  "last_name": "hello",
+  "email": "helllloooo@gmail.com",
+  "password": "$2b$12$/Yl7jC1C5xtjOb4gw6pKfenQvEwaZS5jQazDLraw2cBKoO03.mg.K",
+  "is_admin": false
+}
+ ,{
+  "username": "helooo",
+  "first_name": "hellooo",
+  "last_name": "helldoejf",
+  "email": "kfnsdkfnsdf@gmail.com",
+  "password": "$2b$12$S.bH.gpToUdzV5pEv/SLu.ATJQDw6YVST8HX2WnV5nYJQOwB33P7a",
+  "is_admin": false
+}
+ ,
