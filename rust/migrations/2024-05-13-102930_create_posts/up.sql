@@ -9,8 +9,8 @@ CREATE TABLE conversations (
 CREATE TABLE messages (
 id          SERIAL PRIMARY KEY,
 user_id    TEXT NOT NULL,
-conversation_id TEXT NOT NULL REFERENCES conversations(id),
-message     TEXT NOT NULL
+message     TEXT NOT NULL,
+conversation_id TEXT NOT NULL REFERENCES conversations(id)
 );
 
 CREATE TABLE users (
@@ -19,5 +19,6 @@ username    TEXT NOT NULL,
 first_name  TEXT NOT NULL,
 last_name   TEXT NOT NULL,
 email       TEXT NOT NULL UNIQUE CHECK (POSITION('@' IN EMAIL) > 1),
-password    TEXT NOT NULL
+password    TEXT NOT NULL,
+is_admin    BOOLEAN DEFAULT FALSE
 );

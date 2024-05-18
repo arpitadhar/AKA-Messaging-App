@@ -4,6 +4,9 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import "./RegistrationPage.css";
 
 export default function RegistrationPage(){
+    const [userType, setUserType] = useState(""); 
+    const [secretKey, setSecretKey] = useState(""); 
+    const [isAdminInput, setIsAdmin] = useState(false); 
     useEffect(() => {
 
         const handleClick = () => {
@@ -17,7 +20,11 @@ export default function RegistrationPage(){
             const newPassword = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirm_password").value; 
             const newEmail = document.getElementById("email").value; 
-            const defaultToken = "no_token"; 
+            const defaultToken = false; 
+            console.log(userType); 
+            console.log(secretKey); 
+            console.log(isAdminInput); 
+
 
             if (newPassword == '' || confirmPassword == ''){
                 alert("Please enter a password"); 
@@ -32,8 +39,21 @@ export default function RegistrationPage(){
                 alert("Password too short or too long, must not be less than 12 characters and must be less than 25"); 
                 return false; 
             }
+            else if(userType == "Admin" && secretKey!= "please?"){
+                e.preventDefault(); 
+                alert("Invalid admin"); 
+            }
+            else if(userType == "Admin" && secretKey== "please?"){
+                setIsAdmin(true); 
+            }
+            else if(userType == "User"){
+                setIsAdmin(false); 
+                console.log(isAdminInput); 
+                console.log(userType); 
+            }
             else{
-                alert("Account created!"); 
+                alert("New account information submitted!"); 
+
             }
         
             
@@ -47,15 +67,28 @@ export default function RegistrationPage(){
                 last_name: newLastName, 
                 password: newPassword,
                 email: newEmail,
-                token: defaultToken, 
+                is_admin: isAdminInput, 
 
                 }),
                 headers: {
                     "Content-type": "application/json; charset=UTF-8"
                 }
             })
-            .then((response) => response.json())
-            .then((json) => console.log(json));
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Account successfully created"); 
+            
+              })
+            .catch(error => {
+                  console.error("Error during login:", error);
+                  // Display error message as an alert
+                  alert("Error during login: " + error.message);
+             });
         
             document.getElementById("user").value = "";
             document.getElementById("first_name").value=""; 
@@ -103,6 +136,16 @@ export default function RegistrationPage(){
             <div className = "input">
                 <input id="confirm_password" type = "password" placeholder='Confirm Password' required></input>
             </div> 
+            <div className = "input">
+                  User
+                 <input type = "radio" name = "UserType" value = "User" onChange = {(e)=>setUserType(e.target.value)} />
+                  Admin 
+                 <input type = "radio" name = "UserType" value = "Admin" onChange = {(e) => setUserType(e.target.value)}/>
+            </div>
+            {userType == "Admin"?<div className = "input">
+                <input id="secret_key" type = "password" placeholder='Enter Secret Key' onChange={(e) => setSecretKey(e.target.value)} required></input>
+            </div>:null}
+            
         </div>
        <br></br>
         <button id = "enter">Submit</button>

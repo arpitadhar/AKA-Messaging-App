@@ -84,10 +84,10 @@ async fn create_message(
     //establish database connection and insert values into messages table
     let connection = &mut establish_connection();
     println!("connection established"); 
-    insert_message(connection, &payload.username, &payload.message, &payload.conversation_id);
+    insert_message(connection, &payload.user_id, &payload.message, &payload.conversation_id);
     println!("message inserted");
     let new_message = Message {
-        username: payload.username,
+        user_id: payload.user_id,
         message: payload.message,
         conversation_id: payload.conversation_id,
     };
@@ -117,7 +117,7 @@ async fn list_messages(Json(payload): Json<String>)  -> (StatusCode, Json<String
 async fn create_user(
     //Parse the request body into a <CreateMessage> type
     Json(payload): Json<CreateUser>,
-) -> (StatusCode, Json<User>) {
+) -> (StatusCode, Json<String>) {
     //establish database connection and insert values into messages table
     let default_user = User{
         username: " ".to_string(), 
@@ -125,18 +125,24 @@ async fn create_user(
         last_name: " ".to_string(), 
         email: " ".to_string(), 
         password: " ".to_string(), 
+        is_admin: false, 
     }; 
     let connection = &mut establish_connection();
     if check_email_exists(connection, &payload.email){
         let message = "Email already exists"; 
-        return (StatusCode::BAD_REQUEST, Json(default_user)); 
+        return (StatusCode::BAD_REQUEST, Json(message.to_string())); 
     }
+    if check_username_exists(connection, &payload.username){
+        let message = "Username already exists"; 
+        return (StatusCode::BAD_REQUEST, Json(message.to_string())); 
+    }
+
     let hashed_password = match hash_password(&payload.password) {
         Ok(password) => password,
-        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json(default_user)),
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json("failed to hash password".to_string())),
     };
 
-    insert_user(connection, &payload.username, &payload.first_name, &payload.last_name, &payload.email, &hashed_password); 
+    insert_user(connection, &payload.username, &payload.first_name, &payload.last_name, &payload.email, &hashed_password, payload.is_admin); 
     //println!("{&payload.username, &payload.first_name, &payload.last_name, &payload.email, &payload.password}"); 
     let new_user = User{
         username: payload.username, 
@@ -144,11 +150,12 @@ async fn create_user(
         last_name: payload.last_name, 
         email: payload.email, 
         password: hashed_password,  
+        is_admin: payload.is_admin, 
     }; 
     
     append_string_to_file("users.json", serde_json::to_string_pretty(&new_user).unwrap()).expect("Unable to read file");
 
-    (StatusCode::CREATED, Json(new_user))
+    (StatusCode::CREATED, Json("new user created".to_string()))
 
 }
 
@@ -221,12 +228,12 @@ pub fn insert_message(conn: &mut PgConnection, username: &str, message_text: &st
         .expect("Error inserting messages");
 }
 
-fn insert_user(conn2: &mut PgConnection, username_input: &str, first_name_input: &str, last_name_input: &str, email_input: &str, password_input: &str) -> Result<usize, diesel::result::Error> {
+fn insert_user(conn2: &mut PgConnection, username_input: &str, first_name_input: &str, last_name_input: &str, email_input: &str, password_input: &str, is_admin_input: bool ) -> Result<usize, diesel::result::Error> {
         println!("pls"); 
         use schema::users::dsl::*;
         println!("1"); 
         let rows_inserted = insert_into(users)
-            .values((username.eq(username_input), first_name.eq(first_name_input), last_name.eq(last_name_input), email.eq(email_input), password.eq(password_input)))
+            .values((username.eq(username_input), first_name.eq(first_name_input), last_name.eq(last_name_input), email.eq(email_input), password.eq(password_input), is_admin.eq(is_admin_input)))
             .execute(conn2)?;
         println!("{rows_inserted}:?"); 
         Ok(rows_inserted)
@@ -281,6 +288,14 @@ async fn login(
 ) -> (StatusCode, Json<String>) { 
     let connection: &mut PgConnection = &mut establish_connection();
     let user_exists = check_email_exists(connection, &payload.email);
+    let default_user = User{
+        username: " ".to_string(), 
+        first_name: " ".to_string(), 
+        last_name: " ".to_string(), 
+        email: " ".to_string(), 
+        password: " ".to_string(), 
+        is_admin: false, 
+    }; 
     if user_exists {
         let hashed_password = match get_hashed_password_for_email(connection, &payload.email) {
             Some(password) => password,
@@ -291,8 +306,14 @@ async fn login(
             return (StatusCode::UNAUTHORIZED, Json("Authentication failed".to_string()));
         }
         
-        let message_response = retrieve_username(connection, &payload.email);
+        let username_response = retrieve_username(connection, &payload.email);
+        let user_firstname = retrieve_firstname(connection, &payload.email);
+        let user_lastname = retrieve_lastname(connection, &payload.email);
+        let user_password = retrieve_password(connection, &payload.email); 
+        let user_admin = retrieve_isadmin(connection, &payload.email); 
+        let message_response = username_response; 
         let response_json = serde_json::to_string(&message_response).expect("Error serializing");
+        println!("{response_json}:?"); 
         (StatusCode::OK, Json(response_json))
     } 
     else {
@@ -333,6 +354,17 @@ fn check_email_exists(conn: &mut PgConnection, email_input: &str) -> bool{
     use schema::users::dsl::* ;
     
     match users.filter(email.eq(email_input)).first::<Users>(conn){
+        Ok(_) => true,
+        Err(_) => false,
+    }
+    
+}
+
+
+fn check_username_exists(conn: &mut PgConnection, username_input: &str) -> bool{
+    use schema::users::dsl::* ;
+    
+    match users.filter(username.eq(username_input)).first::<Users>(conn){
         Ok(_) => true,
         Err(_) => false,
     }
@@ -517,6 +549,41 @@ fn retrieve_username(conn: &mut PgConnection, email_input: &str) -> Option<Strin
     }
 }
 
+fn retrieve_isadmin(conn: &mut PgConnection, email_input: &str) -> bool{
+    use schema::users::dsl::*; 
+    match users.filter(email.eq(email_input)).select(is_admin.nullable()).first::<Option<bool>>(conn)  {
+        Ok(Some(isadmin_1)) => Some(isadmin_1).is_some(), 
+        Ok(None) => false, 
+        Err(_) => false,
+    }
+}
+
+fn retrieve_firstname(conn: &mut PgConnection, email_input: &str) -> Option<String>{
+    use schema::users::dsl::*; 
+    match users.filter(email.eq(email_input)).select(first_name).first::<String>(conn)  {
+        Ok(firstname_1) => Some(firstname_1), 
+        Err(_) => None,
+    }
+}
+
+fn retrieve_lastname(conn: &mut PgConnection, email_input: &str) -> Option<String>{
+    use schema::users::dsl::*; 
+    match users.filter(email.eq(email_input)).select(last_name).first::<String>(conn)  {
+        Ok(lastname_1) => Some(lastname_1), 
+        Err(_) => None,
+    }
+}
+
+fn retrieve_password(conn: &mut PgConnection, email_input: &str) -> Option<String>{
+    use schema::users::dsl::*; 
+    match users.filter(email.eq(email_input)).select(password).first::<String>(conn)  {
+        Ok(password_1) => Some(password_1), 
+        Err(_) => None,
+    }
+}
+
+
+
 async fn list_conversations(Json(payload): Json<String>) -> (StatusCode, Json<String>) {
     let connection = &mut establish_connection();
     println!("connection established"); 
@@ -557,7 +624,7 @@ fn verify_password(password: &str, hashed_password: &str) -> bool {
 //the input to our `create_message` handler
 #[derive(Deserialize)]
 struct CreateMessage {
-    username: String,
+    user_id: String,
     message: String,
     conversation_id: String
 }
@@ -565,7 +632,7 @@ struct CreateMessage {
 // the output to our `create_message` handler
 #[derive(Serialize, Debug)]
 struct Message {
-    username: String,
+    user_id: String,
     message: String,
     conversation_id: String,
 }
@@ -577,6 +644,7 @@ struct CreateUser {
     last_name: String, 
     email: String, 
     password: String, 
+    is_admin: bool, 
 }
 
 #[derive(Serialize, Debug)]
@@ -586,6 +654,7 @@ struct User {
     last_name: String, 
     email: String, 
     password: String, 
+    is_admin: bool, 
 
 }
 

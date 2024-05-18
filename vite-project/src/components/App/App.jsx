@@ -27,7 +27,7 @@ function App() {
   const [user, setUser] = useState(false); 
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const handleLogout = () => {
-    sessionStorage.clear(); 
+    localStorage.clear(); 
     setIsLoggedIn(false); 
   };
   return (

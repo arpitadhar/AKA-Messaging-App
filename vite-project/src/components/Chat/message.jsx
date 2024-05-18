@@ -1,7 +1,7 @@
 import useConversation from "../../hooks/useConversation";
 
 const Message = ({input_message}) => {
-   const user1 = sessionStorage.getItem("email"); 
+   const user1 = localStorage.getItem("email"); 
    const user = user1.replace(/^"(.*)"$/, '$1');
    const {selectedConversation} = useConversation(); 
    const fromMe = input_message.username === user; 

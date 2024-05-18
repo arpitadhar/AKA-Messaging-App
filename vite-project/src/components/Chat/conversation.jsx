@@ -5,7 +5,7 @@ import useConversation from "../../hooks/useConversation";
 const Conversation = ({conversation}) => {
     const {selectedConversation, setSelectedConversation} = useConversation(); 
     const isSelected = selectedConversation?.id === conversation.id; 
-    const user1 = sessionStorage.getItem("email"); 
+    const user1 = localStorage.getItem("email"); 
     const user = user1.replace(/^"(.*)"$/, '$1');
     const handleSelectedConversation = () => {
       setSelectedConversation(conversation); 

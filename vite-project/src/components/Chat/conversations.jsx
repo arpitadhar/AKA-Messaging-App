@@ -5,7 +5,7 @@ import { Flex, Spin } from "antd";
 const Conversations = () => {
     const [loading, setLoading] = useState(false);
     const [conversations, setConversations] = useState([]); 
-    const usernameDefault = sessionStorage.getItem("email");
+    const usernameDefault = localStorage.getItem("email");
     const user = usernameDefault.replace(/^"(.*)"$/, '$1');
     useEffect(() => {
         const getConversations = async () => {

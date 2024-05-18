@@ -25,6 +25,7 @@ diesel::table! {
         last_name -> Text,
         email -> Text,
         password -> Text,
+        is_admin -> Nullable<Bool>,
     }
 }
 

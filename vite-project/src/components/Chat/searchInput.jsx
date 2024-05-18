@@ -6,7 +6,7 @@ const SearchInput = () =>{
 
     useEffect(() => {
         const handleClick = () => {
-            const senderUser = sessionStorage.getItem("email");
+            const senderUser = localStorage.getItem("email");
             const senderName = senderUser.replace(/^"(.*)"$/, '$1');
             console.log(receiverName); 
             // Make create-conversation API call

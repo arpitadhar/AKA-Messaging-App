@@ -39,8 +39,8 @@ export default function LoginPage({isLoggedIn, setIsLoggedIn}){
         })
         .then(data => {
           console.log(data);
-          sessionStorage.setItem("email", data); // Assuming email is returned from the server
-          console.log(sessionStorage.getItem("email")); 
+          localStorage.setItem("email", data); // Assuming email is returned from the server
+          console.log(localStorage.getItem("email")); 
           setIsLoggedIn(true); // Update isLoggedIn state
           navigate("/chat"); // Redirect to chat page
         })
