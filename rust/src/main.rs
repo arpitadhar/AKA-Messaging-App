@@ -60,6 +60,10 @@ async fn main() {
         .route("/create-conversation", post(create_conversation))
         //POST /conversations goes to list_conversations()
         .route("/conversations", post(list_conversations))
+        .route("/user-info", post(retrieve_user_information))
+        .route("/update-username", post(update_username))
+        .route("/update-first", post(update_first))
+        .route("/update-last", post(update_last))
         //.route("/verify-token", post(verify_token))
         //.route("/all_users", get(all_users))
         //allows frontend to communicate with backend
@@ -309,8 +313,16 @@ async fn login(
         let username_response = retrieve_username(connection, &payload.email);
         let user_firstname = retrieve_firstname(connection, &payload.email);
         let user_lastname = retrieve_lastname(connection, &payload.email);
-        let user_password = retrieve_password(connection, &payload.email); 
+        let user_password = get_hashed_password_for_email(connection, &payload.email); 
         let user_admin = retrieve_isadmin(connection, &payload.email); 
+        // let default_user1 = User{
+        //     username: &username_response, 
+        //     first_name: &user_firstname, 
+        //     last_name: &user_lastname, 
+        //     email: &payload.email, 
+        //     password: &hashed_password, 
+        //     is_admin: user_admin, 
+        // }; 
         let message_response = username_response; 
         let response_json = serde_json::to_string(&message_response).expect("Error serializing");
         println!("{response_json}:?"); 
@@ -320,6 +332,46 @@ async fn login(
         let message_response = "Incorrect email or password.";
         let response_json = serde_json::to_string(message_response).expect("Error serializing");
         (StatusCode::UNAUTHORIZED, Json(response_json))
+    }
+}
+
+async fn retrieve_user_information(Json(payload): Json<String>
+) -> (StatusCode, Json<User>){
+    let connection: &mut PgConnection = &mut establish_connection();
+    let default_user = User{
+        username: " ".to_string(), 
+        first_name: " ".to_string(), 
+        last_name: " ".to_string(), 
+        email: " ".to_string(), 
+        password: " ".to_string(), 
+        is_admin: false, 
+    }; 
+    println!("1?");
+    let email_response = retrieve_email(connection, &payload).expect("reason").to_string();
+    println!("email"); 
+    let user_exists = check_email_exists(connection, &email_response);
+    println!("exists"); 
+       // let username_response = retrieve_username(connection, &payload).expect("reason").to_string();
+    let user_firstname = retrieve_firstname(connection, &email_response).expect("reason").to_string();
+    println!("first"); 
+    let user_lastname = retrieve_lastname(connection, &email_response).expect("reason").to_string();
+    let user_password = retrieve_password(connection, &email_response).expect("reason").to_string(); 
+    let user_admin = retrieve_isadmin(connection, &email_response); 
+    let default_user1 = User{
+        username: payload, 
+        first_name: user_firstname, 
+        last_name: user_lastname, 
+        email: email_response, 
+        password: user_password, 
+        is_admin: user_admin, 
+    }; 
+    if user_exists{
+        //let response_json = serde_json::to_string(default_user1).expect("Error serializing");
+        println!("?"); 
+        (StatusCode::OK, Json(default_user1))
+    }
+    else{
+        (StatusCode::UNAUTHORIZED, Json(default_user))
     }
 }
 
@@ -338,6 +390,7 @@ async fn forgot_password(
 ) -> (StatusCode, Json<String>){
     use schema::users::dsl::*;
     let connection: &mut PgConnection = &mut establish_connection();
+    let auth_number = rand::thread_rng().gen_range(1..=100); 
     if check_email_exists(connection, &payload.email) {
         println!("{}: Email exists", payload.email);
         send_email(&payload.email);
@@ -484,7 +537,76 @@ async fn new_password(Json(payload): Json<NewPassword>) -> (StatusCode, Json<Str
     }
 }
 
+async fn update_first(Json(payload): Json<InputEmail>) -> (StatusCode, Json<String>){
+    use schema::users::dsl::*; 
+    let connection: &mut PgConnection = &mut establish_connection();
+    println!("1"); 
+    println!("{}", &payload.input); 
+    let new_first = &payload.input; 
+    let update_row = diesel::update(users.filter(email.eq(&payload.email)))
+        .set(first_name.eq(&payload.input));
+       // println!("{:?}", update_row); 
+    println!("{}", diesel::debug_query::<diesel::pg::Pg, _>(&update_row).to_string());
 
+        //.get_result(connection);
+    match update_row.execute(connection) {
+            Ok(rows_affected) => {
+                // Check if any rows were affected
+                if rows_affected > 0 {
+                    return (StatusCode::OK, Json("First name updated successfully".to_string()));
+                } else {
+                    return (StatusCode::NOT_FOUND, Json("User not found".to_string()));
+                }
+            }
+            Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json("Internal server error".to_string())),
+    }
+}
+
+async fn update_last(Json(payload): Json<InputEmail>) -> (StatusCode, Json<String>){
+    use schema::users::dsl::*; 
+    let connection: &mut PgConnection = &mut establish_connection();
+    let new_last = &payload.input; 
+    let update_row = diesel::update(users.filter(email.eq(&payload.email)))
+        .set(last_name.eq(&payload.input));
+       // println!("{:?}", update_row); 
+    println!("{}", diesel::debug_query::<diesel::pg::Pg, _>(&update_row).to_string());
+
+        //.get_result(connection);
+    match update_row.execute(connection) {
+            Ok(rows_affected) => {
+                // Check if any rows were affected
+                if rows_affected > 0 {
+                    return (StatusCode::OK, Json("Last name updated successfully".to_string()));
+                } else {
+                    return (StatusCode::NOT_FOUND, Json("User not found".to_string()));
+                }
+            }
+            Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json("Internal server error".to_string())),
+    }
+}
+
+async fn update_username(Json(payload): Json<InputEmail>) -> (StatusCode, Json<String>){
+    use schema::users::dsl::*; 
+    let connection: &mut PgConnection = &mut establish_connection();
+    let new_first = &payload.input; 
+    let update_row = diesel::update(users.filter(email.eq(&payload.email)))
+        .set(username.eq(&payload.input));
+       // println!("{:?}", update_row); 
+    println!("{}", diesel::debug_query::<diesel::pg::Pg, _>(&update_row).to_string());
+
+        //.get_result(connection);
+    match update_row.execute(connection) {
+            Ok(rows_affected) => {
+                // Check if any rows were affected
+                if rows_affected > 0 {
+                    return (StatusCode::OK, Json("Username updated successfully".to_string()));
+                } else {
+                    return (StatusCode::NOT_FOUND, Json("User not found".to_string()));
+                }
+            }
+            Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json("Internal server error".to_string())),
+    }
+}
 
 async fn create_conversation(
     Json(payload): Json<CreateConversation>
@@ -544,6 +666,14 @@ fn search_user(conn: &mut PgConnection, username_input: &str) -> bool {
 fn retrieve_username(conn: &mut PgConnection, email_input: &str) -> Option<String>{
     use schema::users::dsl::*;
     match users.filter(email.eq(email_input)).select(username).first::<String>(conn)  {
+        Ok(username1) => Some(username1), 
+        Err(_) => None,
+    }
+}
+
+fn retrieve_email(conn: &mut PgConnection, user_input: &str) -> Option<String>{
+    use schema::users::dsl::*;
+    match users.filter(username.eq(user_input)).select(email).first::<String>(conn)  {
         Ok(username1) => Some(username1), 
         Err(_) => None,
     }
@@ -679,6 +809,12 @@ struct VerifyToken{
 struct NewPassword{
     email: String, 
     password: String
+}
+
+#[derive(Deserialize)]
+struct InputEmail{
+    email: String, 
+    input: String, 
 }
 
 #[derive(Deserialize, Serialize, Debug)]
