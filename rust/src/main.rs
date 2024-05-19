@@ -28,6 +28,7 @@ use lettre::SmtpTransport;
 use lettre::Transport;
 use lettre::Message as Email; 
 use lettre::message::Mailbox;
+use crate::models::Flagged;
 //use orion::kex::*;
 //use orion::aead;
 use rand::Rng;
@@ -64,6 +65,8 @@ async fn main() {
         .route("/update-username", post(update_username))
         .route("/update-first", post(update_first))
         .route("/update-last", post(update_last))
+        .route("/create-flag", post(create_flagged_user))
+        .route("/flagged", get(list_flagged))
         //.route("/verify-token", post(verify_token))
         //.route("/all_users", get(all_users))
         //allows frontend to communicate with backend
@@ -241,8 +244,66 @@ fn insert_user(conn2: &mut PgConnection, username_input: &str, first_name_input:
             .execute(conn2)?;
         println!("{rows_inserted}:?"); 
         Ok(rows_inserted)
+    
+}
+async fn create_flagged_user(
+    Json(payload): Json<CreateFlagged>,
+) -> (StatusCode, Json<FlaggedUser>) {
+
+    let connection = &mut establish_connection();
+    println!("connection established"); 
+    insert_flagged_user(connection, &payload.email, &payload.reason);
+    println!("message inserted");
+    let new_flag = FlaggedUser {
+        email: payload.email,
+        reason: payload.reason,
+    };
+
+    append_string_to_file("text.json", serde_json::to_string_pretty(&new_flag).unwrap()).expect("Unable to read file");
+
+    //status code 201 Created
+    (StatusCode::CREATED, Json(new_flag))
+}
+fn insert_flagged_user(conn2: &mut PgConnection, email_input: &str, reason_input: &str) -> Result<usize, diesel::result::Error> {
+    println!("pls"); 
+    use schema::flagged::dsl::*;
+    println!("1"); 
+    let user_exists = check_email_exists(conn2, email_input); 
+    let user_not_flagged = not_flagged(conn2, email_input); 
+    if user_exists && user_not_flagged{
+        let rows_inserted = insert_into(flagged)
+        .values((email.eq(email_input), reason.eq(reason_input)))
+        .execute(conn2)?;
+        println!("{rows_inserted}:?"); 
+        send_email_flagged(email_input, reason_input); 
+        Ok(rows_inserted)
+    }
+    else{
+        println!("Email exists"); 
+        Ok(0)
+    }
 }
 
+
+async fn list_flagged()  -> (StatusCode, Json<String>) {
+
+    //establish database connection and insert values into users table    
+    let connection = &mut establish_connection();
+
+    let user_response = show_flagged(connection);
+
+    println!("{:?}", user_response);
+    let response_json = serde_json::to_string(&user_response).expect("Error serializing");
+    (StatusCode::OK, Json(response_json))
+}
+pub fn show_flagged(conn: &mut PgConnection) -> Vec<Flagged> {
+    use schema::flagged::dsl::*;
+    let results = flagged
+        .load::<Flagged>(conn)
+        .expect("Error loading flagged sers");
+
+    return results;
+}
 // fn delete_user(conn: &mut PgConnection, email_input: &str){ 
 //     use schema::users::dsl::*; 
 //     diesel::delete(users.filter(email.eq(email_input))).execute(connection)?; 
@@ -315,14 +376,6 @@ async fn login(
         let user_lastname = retrieve_lastname(connection, &payload.email);
         let user_password = get_hashed_password_for_email(connection, &payload.email); 
         let user_admin = retrieve_isadmin(connection, &payload.email); 
-        // let default_user1 = User{
-        //     username: &username_response, 
-        //     first_name: &user_firstname, 
-        //     last_name: &user_lastname, 
-        //     email: &payload.email, 
-        //     password: &hashed_password, 
-        //     is_admin: user_admin, 
-        // }; 
         let message_response = username_response; 
         let response_json = serde_json::to_string(&message_response).expect("Error serializing");
         println!("{response_json}:?"); 
@@ -384,17 +437,25 @@ fn check_user_exists(conn: &mut PgConnection, email_input: &str, password_input:
     }
 }
 
+fn not_flagged(conn: &mut PgConnection, email_input: &str) -> bool{
+    use schema::flagged::dsl::*; 
+    match flagged.filter(email.eq(email_input)).first::<Flagged>(conn){
+        Ok(_) => false,
+        Err(_) => true,
+    }
+}
+
 //route for forgot password
 async fn forgot_password(
     Json(payload): Json<Password>
 ) -> (StatusCode, Json<String>){
     use schema::users::dsl::*;
     let connection: &mut PgConnection = &mut establish_connection();
-    let auth_number = rand::thread_rng().gen_range(1..=100); 
+    let auth_number = rand::thread_rng().gen_range(1..=100).to_string(); 
     if check_email_exists(connection, &payload.email) {
         println!("{}: Email exists", payload.email);
-        send_email(&payload.email);
-        (StatusCode::OK, Json("Reset password email sent".to_string()))
+        send_email(&payload.email, &auth_number);
+        (StatusCode::OK, Json(auth_number.to_string()))
 
     } else {
         println!("{}: Email not found", payload.email);
@@ -446,12 +507,11 @@ fn create_mailer() -> SmtpTransport {
 
 
 
-fn send_email(email_input: &str) {
+fn send_email(email_input: &str, auth_number: &str) {
     // Build the email
-    //let connection: &mut PgConnection = &mut establish_connection();
-    let auth_number = rand::thread_rng().gen_range(1..=100); 
-    let reset_email = "http://localhost:5173/verify"; 
-    let email_body = format!("Hello, this is from the AKA Messaging Team. Click \"{}\" and type in {}", reset_email, auth_number); 
+    //let connection: &mut PgConnection = &mut establish_connection(); 
+    let reset_email = format!("http://localhost:5173/verify/{}", auth_number); 
+    let email_body = format!("Hello, this is from the AKA Messaging Team. Your code is {}", auth_number); 
     let email = Email::builder()
         .from("akaapp315@gmail.com".parse::<Mailbox>().unwrap())
         .to(email_input.parse::<Mailbox>().unwrap())
@@ -470,9 +530,26 @@ fn send_email(email_input: &str) {
             println!("Basic email failed to send. {:?}", error);
         }
     }
-    //use schema::users::dsl::*; 
-    // let update_row = diesel::update(users.filter(email.eq(email_input)))
-    //     .set(token.eq(&auth_number));
+
+}
+
+fn send_email_flagged(email_input: &str, reason_input: &str) {
+    let reset_email = "http://localhost:5173/verify"; 
+    let email_body = format!("Hello, this is from the AKA Messaging Team. You have been flagged for {}", reason_input); 
+    let email = Email::builder()
+        .from("akaapp315@gmail.com".parse::<Mailbox>().unwrap())
+        .to(email_input.parse::<Mailbox>().unwrap())
+        .subject("FLAGGED AKA")
+        .body(email_body)
+        .unwrap();
+  
+    let mailer = create_mailer();
+    match mailer.send(&email) {
+        Ok(_) => println!("Basic email sent!"),
+        Err(error) => {
+            println!("Basic email failed to send. {:?}", error);
+        }
+    }
 
 }
 
@@ -787,6 +864,16 @@ struct User {
     is_admin: bool, 
 
 }
+#[derive(Deserialize, Debug)]
+struct CreateFlagged {
+    email: String, 
+    reason: String, 
+}
+#[derive(Serialize, Debug)]
+struct FlaggedUser {
+    email: String,
+    reason: String, 
+}
 
 #[derive(Deserialize)]
 struct Login{
@@ -833,3 +920,56 @@ struct CreateConversation {
 
 
 
+/*
+#[cfg(test)]
+mod tests{
+    use super::*; 
+    //if username and email dont already exist in the database 
+    // #[test]
+    // fn test_insert_users(){
+    //     let connection = &mut establish_connection();
+    //     let result = insert_user(connection, "user12", "first1", "last1", "email21@gmail.com", "passwordpassword1", false); 
+    //     let result = insert_user(connection, "username122", "first2", "last2", "email22@gmail.com", "passwordpassword2", false); 
+    //     let expected_result = Ok(1); 
+    //     assert_eq!(result, expected_result); 
+    // }
+    #[test]
+    fn test_insert_flagged(){
+        let connection = &mut establish_connection();
+        let result = insert_flagged_user(connection, "ARPITA.DHAR17@myhunter.cuny.edu", "test_case"); 
+        let expected_result = Ok(1); 
+        assert_eq!(result, expected_result); 
+    }
+    // macro_rules! aw {
+    //     ($e:expr) => {
+    //         tokio_test::block_on($e)
+    //     };
+    // }
+   /* 
+    #[actix_rt::test]
+    async fn test_create_users(){
+        let newUser = CreateUser{
+            username: "usernmame".to_string(), 
+            first_name: "first".to_string(), 
+            last_name: "last".to_string(), 
+            email: "email@gmail.com".to_string(), 
+            password: "passwordpassword".to_string(),
+            is_admin: false,
+        }; 
+        let new_User = User{
+            username: "usernmame".to_string(), 
+            first_name: "first".to_string(), 
+            last_name: "last".to_string(), 
+            email: "email@gmail.com".to_string(), 
+            password: "passwordpassword".to_string(),
+            is_admin: false,
+        }; 
+        let expected_user_json = serde_json::to_string(&new_User).expect("Failed to serialize user");
+        let expected_result = (StatusCode::CREATED, Json(expected_user_json));
+        let payload: Json<CreateUser> = serde_json::from_str(&newUser).expect("Failed");
+        let result = create_user(payload).await;
+        assert_eq!(result, expected_result); 
+    }
+
+   */ 
+}*/

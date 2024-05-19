@@ -34,3 +34,13 @@ pub struct Conversations {
     pub user1_id: String,
     pub user2_id: String,
 }
+
+
+#[derive(Queryable, Selectable, Serialize, Debug)]
+#[diesel(table_name = crate::schema::flagged)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Flagged{
+    pub id: i32, 
+    pub email: String, 
+    pub reason: String, 
+}

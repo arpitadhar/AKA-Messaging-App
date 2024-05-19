@@ -9,6 +9,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    flagged (id) {
+        id -> Int4,
+        email -> Text,
+        reason -> Text,
+    }
+}
+
+diesel::table! {
     messages (id) {
         id -> Int4,
         user_id -> Text,
@@ -33,6 +41,7 @@ diesel::joinable!(messages -> conversations (conversation_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     conversations,
+    flagged,
     messages,
     users,
 );

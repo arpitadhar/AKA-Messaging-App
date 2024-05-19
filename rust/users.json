@@ -38,4 +38,12 @@
   "password": "$2b$12$1aANygiCnWsjovVmwej1zOH5Hj/2yaZRHHnkDcUyJzwNOJcB7rUV6",
   "is_admin": false
 }
+ ,{
+  "username": "ad6474",
+  "first_name": "Arpita",
+  "last_name": "Dhar",
+  "email": "ARPITA.DHAR17@myhunter.cuny.edu",
+  "password": "$2b$12$PX/zx1N4GzjgMQyeTwIIIeN0vsQGq5hGdDHECHMvhM0L.xCIK9NUS",
+  "is_admin": false
+}
  ,
