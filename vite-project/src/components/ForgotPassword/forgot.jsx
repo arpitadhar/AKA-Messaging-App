@@ -32,8 +32,9 @@ export default function ForgotPassword(props){
                     throw new Error("Failed to send reset password email");
                 }
             })
-            .then(json => {
-                console.log(json);
+            .then(data => {
+                console.log(data);
+                localStorage.setItem("token", data); 
                 window.location.href = "/verify";
             })
             .catch(error => {

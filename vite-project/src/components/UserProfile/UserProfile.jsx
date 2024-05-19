@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import AccessForbidden from "../AccessForbidden/AccessForbidden";
 import { useRef } from 'react';
 import "./UserProfile.css";
+import { contentQuotesLinter } from "@ant-design/cssinjs/lib/linters";
 
 
 //Changes array buffer in posts response to base64 to display
@@ -36,7 +37,47 @@ export default function UserProfile({isLoggedIn})  {
     const [oldPassword, setOldPassword] = useState("")
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
+    const [first, setFirst] = useState(""); 
+    const [last, setLast] = useState(""); 
+    const [username, setUsername] = useState(""); 
+    const [email1, setEmail] = useState(""); 
+    const user1 = localStorage.getItem("email"); 
+    const user = user1.replace(/^"(.*)"$/, '$1');
+    const infoRequest = fetch("http://localhost:3000/user-info", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify( user )
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        return response.json();
+    })
+    .then(data => {
+      console.log(data);
+      localStorage.setItem("user-info", JSON.stringify(data)); // Assuming email is returned from the server
+      console.log(localStorage.getItem("user-info"));
+      console.log("???"); 
+      let data2 = localStorage.getItem("user-info");
+      //console.log(localStorage.getItem("user-info").first_name);
+      let info = JSON.parse(data2); 
+      console.log(data.first_name);
+      setFirst(data.first_name); 
+      setLast(data.last_name); 
+      setUsername(data.username); 
+      setEmail(data.email);
+      let userInfo = localStorage.getItem("user-info");
+      console.log(userInfo.first_name); 
+     })
+    .catch(error => {
+        console.error("Error retrieving info:", error);
+        // Display error message as an alert
+        alert("Error retrieving info: " + error.message);
+    });
+    
 
       //Updates image when changes happen
   // const imageChange = (e) => {
@@ -109,23 +150,105 @@ export default function UserProfile({isLoggedIn})  {
     
     const handleFirstNameChange = (event) => {
         setFirstName(event.target.value);
+        const input_name = document.getElementById("change_firstName").value;
+        const infoRequest = fetch("http://localhost:3000/update-first", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: email1, input: input_name})
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+          console.log(data);
+          localStorage.setItem("user-info", JSON.stringify(data)); 
+          console.log(localStorage.getItem("user-info"));
+          console.log("???"); 
+          setFirst(data.first_name); 
+          //console.log(userInfo.first_name); 
+         })
+        .catch(error => {
+            console.error("Error changing first:", error);
+            alert("Error changing first: " + error.message);
+        });
+
     }
 
     const handleLastNameChange = (event) => {
-        setLastName(event.target.value);
+        const input_name = document.getElementById("change_lastName").value;
+        const infoRequest = fetch("http://localhost:3000/update-last", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: email1, input: input_name})
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+          console.log(data);
+          localStorage.setItem("user-info", JSON.stringify(data)); 
+          console.log(localStorage.getItem("user-info"));
+          console.log("???"); 
+          setLast(data.last_name); 
+          //console.log(userInfo.first_name); 
+         })
+        .catch(error => {
+            console.error("Error changing last:", error);
+            alert("Error changing last: " + error.message);
+        });
     }
 
-    const handleOldPasswordChange = (event) => {
-        setOldPassword(event.target.value);
+    const handleUsernameChange = (event) => {
+        const input_name = document.getElementById("newUsername").value;
+        const confirm_name = document.getElementById("confirmUsername").value;
+        if (confirm_name == input_name){
+            const infoRequest = fetch("http://localhost:3000/update-username", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: email1, input: input_name})
+          })
+            .then(response => {
+                if (!response.ok) {
+                throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+          console.log(data);
+          localStorage.setItem("user-info", JSON.stringify(data)); 
+          console.log(localStorage.getItem("user-info"));
+          console.log("???"); 
+          setUsername(data.username); 
+          //console.log(userInfo.first_name); 
+         })
+        .catch(error => {
+            console.error("Error changing username:", error);
+            alert("Error changing username: " + error.message);
+        });
+        }
+        else{
+            alert("usernames don't match"); 
+        }
+        
     }
+
 
     const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
+        
     }
 
-    const handleConfirmPasswordChange = (event) => {
-        setConfirmPassword(event.target.value);
-    }
 
     //const handleSubmit = (event) => {
     //    event.preventDefault();
@@ -169,11 +292,6 @@ export default function UserProfile({isLoggedIn})  {
         } 
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user");
-        setLoggedInUser(null);
-        navigate('/');
-    };
     
     if (isLoggedIn) {
         return (
@@ -196,12 +314,16 @@ export default function UserProfile({isLoggedIn})  {
             							<div className="row g-3">
             								<h4 className="mb-4 mt-0">Personal Info</h4>
             								<div className="col-md-6">
-            									<label className="form-label">First Name *</label>
-            									<input type="text" className="form-control" placeholder="John" aria-label="First name" onChange={handleFirstNameChange}/>
+            									<label className="form-label">First Name*</label>
+            									<input type="text" id="change_firstName"className="form-control" placeholder={first} aria-label="First name"/>
+                                                <br></br>
+                                                <button id = "change_first" className = "userButtons" onClick={handleFirstNameChange}>Change First Name</button>
             								</div>
             								<div className="col-md-6">
             									<label className="form-label">Last Name *</label>
-            									<input type="text" className="form-control" placeholder="Doe" aria-label="Last name" onChange={handleLastNameChange}/>
+            									<input type="text"id="change_lastName" className="form-control" placeholder={last} aria-label="Last name"/>
+                                                <br></br>
+                                                <button id = "change_last" onClick={handleLastNameChange}>Change Last Name</button>
             								</div>
             							</div> 
             						</div>
@@ -216,7 +338,8 @@ export default function UserProfile({isLoggedIn})  {
             									</div>
             									<input type="file" id="customFile" name="file" hidden=""/>
             									<label className="btn btn-success btn-block" for="customFile">Upload</label>
-            									<button type="button" className="btn btn-danger btn-sm">Remove</button>
+                                                <br></br>
+            									<button type="button" id = "remove" className="btn btn-danger btn-sm">Remove</button>
             									<p className="text-muted mt-3 mb-0"><span class="me-1">Note:</span>Minimum size 300px x 300px</p>
             								</div>
             							</div>
@@ -227,23 +350,15 @@ export default function UserProfile({isLoggedIn})  {
             					<div className="bg-secondary-soft px-4 py-5 rounded">
             						<div className="row g-3">
             							<h4 className="my-4">Change Username</h4>
-            							<div className="col-md-6">
-            								<label for="oldPassword" className="form-label">Old username *</label>
-            								<input type="password" className="form-control" id="oldPassword" onChange={handleOldPasswordChange}/>
-                                            <div id="invalid-0" class="text-danger d-none">
-                                            Please enter your username
-                                            </div>
-            							</div>
-            							<div className="col-md-6">
-            								<label for="newPassword" className="form-label">New Username *</label>
-            								<input type="password" className="form-control" id="newPassword" onChange={handlePasswordChange}/>
-            							</div>
             							<div class="col-md-12">
+            								<label for="confirmPassword" className="form-label" >Enter New Username Here *</label>
+            								<input type="text" className="form-control" id="newUsername" placeholder = {username}/>
+            							</div>
+                                        <div class="col-md-12">
             								<label for="confirmPassword" className="form-label">Confirm Username *</label>
-            								<input type="password" className="form-control" id="confirmPassword" onChange={handleConfirmPasswordChange}/>
-                                            <div id="invalid-1" class="text-danger d-none">
-                                            Passwords do not match
-                                            </div>
+            								<input type="text" className="form-control" id="confirmUsername"/>
+                                            <br></br>
+                                            <button type="button" id = "new_username" className="btn btn-danger btn-sm" onClick = {handleUsernameChange}>Confirm Username</button>
             							</div>
             						</div>
             					</div>
@@ -254,30 +369,31 @@ export default function UserProfile({isLoggedIn})  {
             							<h4 className="my-4">Change Password</h4>
             							<div className="col-md-6">
             								<label for="oldPassword" className="form-label">Old password *</label>
-            								<input type="password" className="form-control" id="oldPassword" onChange={handleOldPasswordChange}/>
+            								<input type="password" className="form-control" id="oldPassword"/>
                                             <div id="invalid-0" class="text-danger d-none">
                                             Please enter your password
                                             </div>
             							</div>
             							<div className="col-md-6">
             								<label for="newPassword" className="form-label">New password *</label>
-            								<input type="password" className="form-control" id="newPassword" onChange={handlePasswordChange}/>
+            								<input type="password" className="form-control" id="newPassword" />
             							</div>
             							<div class="col-md-12">
             								<label for="confirmPassword" className="form-label">Confirm Password *</label>
-            								<input type="password" className="form-control" id="confirmPassword" onChange={handleConfirmPasswordChange}/>
+            								<input type="password" className="form-control" id="confirmPassword"/>
                                             <div id="invalid-1" class="text-danger d-none">
                                             Passwords do not match
                                             </div>
+                                            <br></br>
+                                            <button type="button" className="btn btn-danger btn-lg">New Password</button>
+                                            <br></br>
+                                            <br></br>
+                                            <br></br>
+                                            <br></br>
+                                            <button type="button" id = "remove-profile" className="btn btn-danger btn-lg">Delete profile</button>
             							</div>
             						</div>
             					</div>
-            				</div>
-
-            				<div className="gap-3 d-md-flex text-center">
-            					<button type="button" className="btn btn-danger btn-lg">Delete profile</button>
-                      <button type="button" className="btn btn-primary btn-lg" >Update profile</button>
-            					{/* <button type="button" class="btn btn-primary btn-lg" onClick={uploadImage}>Update profile</button> */}
             				</div>
             			</form> 
             		</div>

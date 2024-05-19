@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 const useSendMessage = () => {
   const [loading, setLoading] = useState(false);
   const {messages, setMessages, selectedConversation} = useConversation(); 
-  const senderUser = sessionStorage.getItem("email");
+  const senderUser = localStorage.getItem("email");
   const senderName = senderUser.replace(/^"(.*)"$/, '$1');
   const sendMessage = async(messageBody) => {
    setLoading(true)
@@ -15,7 +15,7 @@ const useSendMessage = () => {
         headers: {
             'Content-Type': 'application/json'
         },
-        body:JSON.stringify({username: senderName, message: messageBody, conversation_id: selectedConversation.id})
+        body:JSON.stringify({user_id: senderName, message: messageBody, conversation_id: selectedConversation.id})
       });
       const data = await res.json()
       if(data.error) throw new Error(data.error)

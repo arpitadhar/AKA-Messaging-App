@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from 'react-dom/client';
 import "./LoginPage.css";
+import { BsChevronCompactLeft } from "react-icons/bs";
 //import {useLogin} from '/Users/arpitadhar/Downloads/AKA-Messaging-App-new-react/vite-project/src/context/login-provider.jsx';
 //import {loggedIn} from '../LoginHandler/LoginHandler'; 
 
@@ -24,7 +25,7 @@ export default function LoginPage({isLoggedIn, setIsLoggedIn}){
         const password = document.getElementById("password").value;
 
         // Make login API call
-        fetch("http://localhost:3000/login", {
+        const loginRequest = fetch("http://localhost:3000/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -43,7 +44,7 @@ export default function LoginPage({isLoggedIn, setIsLoggedIn}){
           console.log(localStorage.getItem("email")); 
           setIsLoggedIn(true); // Update isLoggedIn state
           navigate("/chat"); // Redirect to chat page
-        })
+         })
         .catch(error => {
             console.error("Error during login:", error);
             // Display error message as an alert

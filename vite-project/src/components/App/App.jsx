@@ -11,10 +11,11 @@ import './App.css';
 import Navbar from "../Navbar/Navbar";
 import AdminPanel from "../AdminPanel/adminPanel";
 import Chat from "../Chat/chat";
-import Users from "../AdminPanel/adminRoutes/users"; 
+//import Users from "../AdminPanel/adminRoutes/users"; 
 import ForgotPassword from "../ForgotPassword/forgot";
 import {} from "antd"; 
 import VerifyCode from "../ForgotPassword/verify_code";
+import UserProfile from "../UserProfile/UserProfile";
 
 export default function AppContainer() {
   return (
@@ -51,7 +52,7 @@ function App() {
           <Route path="/chat" element={<Chat isLoggedIn = {isLoggedIn}/>} />
           <Route path="/aboutus" element={<AboutUs/>} />
           <Route path="/adminpanel" element={<AdminPanel/>} />
-          <Route path="/users" element={<Users/>} />
+          <Route path="chat/user" element={<UserProfile user={user} isLoggedIn = {isLoggedIn} />}/>
           <Route path="*" element={<NotFound />} />
           <Route path="/denied" element={<AccessForbidden />} />
         </Routes>

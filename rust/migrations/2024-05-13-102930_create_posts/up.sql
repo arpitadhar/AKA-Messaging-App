@@ -22,3 +22,10 @@ email       TEXT NOT NULL UNIQUE CHECK (POSITION('@' IN EMAIL) > 1),
 password    TEXT NOT NULL,
 is_admin    BOOLEAN DEFAULT FALSE
 );
+
+
+CREATE TABLE flagged(
+id         SERIAL PRIMARY KEY, 
+email      TEXT NOT NULL UNIQUE CHECK (POSITION('@' IN EMAIL) > 1), 
+reason     TEXT NOT NULL
+); 

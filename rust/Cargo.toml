@@ -25,3 +25,9 @@ tower = "0.4.13"
 tower-http = { version = "0.5.2", features = ["cors","trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+actix-rt = "*"
+
+[dev-dependencies]
+tokio-test = "*"
+anyhow = "1"
+httpc-test = "0.1.1"
