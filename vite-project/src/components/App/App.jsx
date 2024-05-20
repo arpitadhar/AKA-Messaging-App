@@ -51,7 +51,7 @@ function App() {
           <Route path="/verify" element={<VerifyCode />} /> 
           <Route path="/chat" element={<Chat isLoggedIn = {isLoggedIn}/>} />
           <Route path="/aboutus" element={<AboutUs/>} />
-          <Route path="/adminpanel" element={<AdminPanel/>} />
+          <Route path="chat/adminpanel" element={<AdminPanel/>} />
           <Route path="chat/user" element={<UserProfile user={user} isLoggedIn = {isLoggedIn} />}/>
           <Route path="*" element={<NotFound />} />
           <Route path="/denied" element={<AccessForbidden />} />

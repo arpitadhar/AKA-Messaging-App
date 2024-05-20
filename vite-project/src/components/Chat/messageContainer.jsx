@@ -47,6 +47,7 @@ const NoChatSelected = () => {
                 Welcome 
             </div>
             <button onClick={(e) =>{ e.preventDefault(); navigate('user');}}>Your Profile</button>
+            <button onClick={(e) =>{ e.preventDefault(); navigate('adminpanel');}}>Admin Panel</button>
         </div>
     )
 }
