@@ -23,7 +23,7 @@ export default function LoginPage({isLoggedIn, setIsLoggedIn}){
         // Get email and password inputs
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-
+        localStorage.setItem("actual_email", email); 
         // Make login API call
         const loginRequest = fetch("http://localhost:3000/login", {
             method: "POST",

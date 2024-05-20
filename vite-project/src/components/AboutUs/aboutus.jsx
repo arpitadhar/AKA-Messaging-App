@@ -2,25 +2,34 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import "./LandingPage.css"
 import "./aboutus.css";
+import { Carousel } from 'antd';
+const contentStyle = {
+  height: '560px',
+  color: '#fff',
+  lineHeight: '160px',
+  textAlign: 'center',
+  background: '#00',
+};
 export default function AboutUs(props) {
    //console.log(props.user);
    const navigate = useNavigate(); 
    
    return (
-     <div className = "container-about" style={{ fontFamily: 'Rubik, sans-serif' }}>
-        <h1>About Us</h1>
-        <h2>Team of 3 Hunter Computer Science students!</h2>
-        <div className="avatar">
-      <div className="w-24 rounded-full">
-      <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+      <div className = "container-about" style={{ fontFamily: 'Rubik, sans-serif' }}>
+      <h1>About Us</h1>
+      <Carousel autoplay>
+      <div>
+        <h3 style={contentStyle}>Arpita Dhar</h3>
       </div>
-      <div className="w-24 rounded-full">
-      <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+      <div>
+        <h3 style={contentStyle}>Anthony Garcia</h3>
+        
       </div>
-      <div className="w-24 rounded-full">
-      <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+      <div>
+        <h3 style={contentStyle}>Kevin Gomes</h3>
       </div>
-      </div>
+      </Carousel>
       </div>
    )
 }
+

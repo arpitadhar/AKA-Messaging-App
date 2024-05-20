@@ -6,7 +6,7 @@ const Messages = () => {
     console.log("messages:", messages); 
     messages.map((mess) => console.log(mess)); 
     return(
-        <div className='px-4 flex-1 overflow-auto'>
+        <div className='px-4 flex-1 overflow-auto' id = "all-messages">
           {loading && <MessageSkeleton />}
           {!loading && messages.length > 0 && messages.map((message) => (
             <Message key={message.id} input_message ={message} />

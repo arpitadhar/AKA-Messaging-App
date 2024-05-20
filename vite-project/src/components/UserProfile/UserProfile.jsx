@@ -4,8 +4,17 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import AccessForbidden from "../AccessForbidden/AccessForbidden";
 import { useRef } from 'react';
 import "./UserProfile.css";
+import { TinyColor } from '@ctrl/tinycolor';
+import { Button, ConfigProvider, Space } from 'antd';
 import { contentQuotesLinter } from "@ant-design/cssinjs/lib/linters";
 
+const colors1 = ['#6253E1', '#04BEFE'];
+const colors2 = ['#fc6076', '#ff9a44', '#ef9d43', '#e75516'];
+const colors3 = ['#40e495', '#30dd8a', '#2bb673'];
+const getHoverColors = (colors) =>
+  colors.map((color) => new TinyColor(color).lighten(5).toString());
+const getActiveColors = (colors) =>
+  colors.map((color) => new TinyColor(color).darken(5).toString());
 
 //Changes array buffer in posts response to base64 to display
 export const toBase64 = function (arr) {
@@ -31,7 +40,6 @@ export function ProfileImage(props) {
   }
 
 export default function UserProfile({isLoggedIn})  {
-    //Hacky way of implementation, lift this props to App component
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [oldPassword, setOldPassword] = useState("")
@@ -149,7 +157,7 @@ export default function UserProfile({isLoggedIn})  {
     //}
     
     const handleFirstNameChange = (event) => {
-        setFirstName(event.target.value);
+        event.preventDefault();
         const input_name = document.getElementById("change_firstName").value;
         const infoRequest = fetch("http://localhost:3000/update-first", {
             method: "POST",
@@ -180,6 +188,7 @@ export default function UserProfile({isLoggedIn})  {
     }
 
     const handleLastNameChange = (event) => {
+        event.preventDefault();
         const input_name = document.getElementById("change_lastName").value;
         const infoRequest = fetch("http://localhost:3000/update-last", {
             method: "POST",
@@ -209,15 +218,17 @@ export default function UserProfile({isLoggedIn})  {
     }
 
     const handleUsernameChange = (event) => {
+        event.preventDefault();
+        const old_username = document.getElementById("oldUsername").value;
         const input_name = document.getElementById("newUsername").value;
         const confirm_name = document.getElementById("confirmUsername").value;
-        if (confirm_name == input_name){
+        if (confirm_name === input_name){
             const infoRequest = fetch("http://localhost:3000/update-username", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({email: email1, input: input_name})
+            body: JSON.stringify({email: email1, username_old: old_username, new_username: input_name})
           })
             .then(response => {
                 if (!response.ok) {
@@ -226,14 +237,11 @@ export default function UserProfile({isLoggedIn})  {
                 return response.json();
             })
             .then(data => {
-          console.log(data);
-          localStorage.setItem("user-info", JSON.stringify(data)); 
-          console.log(localStorage.getItem("user-info"));
-          console.log("???"); 
-          setUsername(data.username); 
-          //console.log(userInfo.first_name); 
-         })
-        .catch(error => {
+                console.log(data);
+                localStorage.setItem("email", input_name); 
+                setUsername(data.username); 
+            })
+            .catch(error => {
             console.error("Error changing username:", error);
             alert("Error changing username: " + error.message);
         });
@@ -241,12 +249,41 @@ export default function UserProfile({isLoggedIn})  {
         else{
             alert("usernames don't match"); 
         }
+        document.getElementById("newUsername").value("");
+        document.getElementById("confirmUsername").value("");
+        document.getElementById("oldUsername").value(""); 
         
     }
 
 
     const handlePasswordChange = (event) => {
+        event.preventDefault();
+        const confirmPass = document.getElementById("confirmPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+            const infoRequest = fetch("http://localhost:3000/new-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: email1, password: newPassword})
+          })
+            .then(response => {
+                if (!response.ok) {
+                throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error("Error changing password:", error);
+                alert("Error changing password: " + error.message);
+            });
         
+    
+        document.getElementById("confirmPassword").value("");
+        document.getElementById("newPassword").value("");
     }
 
 
@@ -296,12 +333,42 @@ export default function UserProfile({isLoggedIn})  {
     if (isLoggedIn) {
         return (
             <body id = "user-profile">
+                <Space>
+    <ConfigProvider
+      theme={{
+        components: {
+          Button: {
+            colorPrimary: `linear-gradient(135deg, ${colors1.join(', ')})`,
+            colorPrimaryHover: `linear-gradient(135deg, ${getHoverColors(colors1).join(', ')})`,
+            colorPrimaryActive: `linear-gradient(135deg, ${getActiveColors(colors1).join(', ')})`,
+            lineWidth: 0,
+          },
+        },
+      }}
+    >
+      <Button type="primary" size="large" onClick={(e) =>{ e.preventDefault(); navigate('/chat');}}>
+        Back to Chat
+      </Button>
+    </ConfigProvider>
+    <ConfigProvider
+      theme={{
+        components: {
+          Button: {
+            colorPrimary: `linear-gradient(90deg,  ${colors2.join(', ')})`,
+            colorPrimaryHover: `linear-gradient(90deg, ${getHoverColors(colors2).join(', ')})`,
+            colorPrimaryActive: `linear-gradient(90deg, ${getActiveColors(colors2).join(', ')})`,
+            lineWidth: 0,
+          },
+        },
+      }}
+    ></ConfigProvider>
+    </Space>
             <div className="container text-white" style={{ fontFamily: 'Rubik, sans-serif' }}>
             <div className="row">
             		<div className="col-12">
             			<div className="my-5">
             				{/* <h3>{loggedInUser.email}'s Profile</h3> */}
-                            <h3>John's Profile</h3>
+                            <h3>{first}'s Profile</h3>
                             {/* <ProfileImage
                             source={toBase64(UserProfileImage?.photo?.data)}
                             />  */}
@@ -351,8 +418,12 @@ export default function UserProfile({isLoggedIn})  {
             						<div className="row g-3">
             							<h4 className="my-4">Change Username</h4>
             							<div class="col-md-12">
+            								<label for="confirmPassword" className="form-label" >Enter Old Username Here *</label>
+            								<input type="text" className="form-control" id="oldUsername" placeholder = {username}/>
+            							</div>
+                                        <div class="col-md-12">
             								<label for="confirmPassword" className="form-label" >Enter New Username Here *</label>
-            								<input type="text" className="form-control" id="newUsername" placeholder = {username}/>
+            								<input type="text" className="form-control" id="newUsername" />
             							</div>
                                         <div class="col-md-12">
             								<label for="confirmPassword" className="form-label">Confirm Username *</label>
@@ -385,7 +456,7 @@ export default function UserProfile({isLoggedIn})  {
                                             Passwords do not match
                                             </div>
                                             <br></br>
-                                            <button type="button" className="btn btn-danger btn-lg">New Password</button>
+                                            <button type="button" className="btn btn-danger btn-lg" onClick={handlePasswordChange}>New Password</button>
                                             <br></br>
                                             <br></br>
                                             <br></br>

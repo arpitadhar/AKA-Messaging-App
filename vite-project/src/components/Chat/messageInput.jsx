@@ -16,7 +16,7 @@ const MessageInput = () => {
     <form className='inputMessage' onSubmit={handleSubmit}>
         <div className = 'messageInput'>
             <input type = "text" placeholder = 'Send a message' id = "message" value = {message} onChange={(e) => setMessage(e.target.value)}/>
-            <button type = "submit" className = 'absolute inset-y-0 end-0 flex items-center pe-3'><BsSend className="sendButton"/></button>
+            <button type = "submit" className = 'absolute inset-y-0 end-0 flex items-center pe-3' id = "send-message"><BsSend className="sendButton"/></button>
         </div>
     </form>
   )
