@@ -3,7 +3,11 @@ import "./chat.css";
 import MessageContainer from "./messageContainer";
 import SearchInput from "./searchInput"; 
 import Sidebar from "./SideBar"; 
+import { useNavigate } from 'react-router-dom'; 
+import { TinyColor } from '@ctrl/tinycolor';
+import { Button, ConfigProvider, Space } from 'antd';
 
+// const navigate = useNavigate();
 export default function Chat({ isLoggedIn }) {
     //console.log(props.user);
     //const navigate = useNavigate(); 

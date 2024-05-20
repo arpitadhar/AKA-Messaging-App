@@ -46,4 +46,36 @@
   "password": "$2b$12$PX/zx1N4GzjgMQyeTwIIIeN0vsQGq5hGdDHECHMvhM0L.xCIK9NUS",
   "is_admin": false
 }
+ ,{
+  "username": "ekfeksdf",
+  "first_name": "dkfhdskf",
+  "last_name": "sdlfskf",
+  "email": "veryrandom@gmail.com",
+  "password": "$2b$12$oEKPBl/9tjoGrj7qo/TvzuRHypqmyf/iWU1WTuTY6IXOd8u.T65r.",
+  "is_admin": false
+}
+ ,{
+  "username": "dfskdfskfs",
+  "first_name": "ojdojsd",
+  "last_name": "sdlkfnfslf",
+  "email": "veryrandom@gmail.com",
+  "password": "$2b$12$rkchWK2oWZQbQKZQ5fqH9.Jxz0YcB14gk35lrPTLejVl8bqb8vtJW",
+  "is_admin": false
+}
+ ,{
+  "username": "hbj",
+  "first_name": "nkn",
+  "last_name": "knkn",
+  "email": "email@gmail.com",
+  "password": "$2b$12$MlheoaYoWveoSqRnq7FhB.tqQaPHguXRiCGuw18IMWOGyhV7yM1ba",
+  "is_admin": false
+}
+ ,{
+  "username": "ARPITA",
+  "first_name": "DHAR",
+  "last_name": "ARPITA",
+  "email": "ARPITA.DHAR17@myhunter.cuny.edu",
+  "password": "$2b$12$Ws0uidAmqd3uuR/u456swOqAYl7bo1GWIQNqxHbx6ym4LxHrru3s6",
+  "is_admin": false
+}
  ,

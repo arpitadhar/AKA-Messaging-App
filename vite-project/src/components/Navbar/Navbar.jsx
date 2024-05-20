@@ -40,7 +40,7 @@ export default function Navbar({ isLoggedIn, handleLogout}) {
                     >
                     <a onClick={(e) => e.preventDefault()}>
                     <Space>
-                    {user1}
+                    {localStorage.getItem("email")}
                     <DownOutlined />
                     </Space>
                     </a>
