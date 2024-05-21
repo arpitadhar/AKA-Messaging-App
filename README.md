@@ -1,6 +1,8 @@
 # RUST + React + Vite 
 AKA MESSAGING APP 
 
+This build is the refactored version of the main branch, but does not have all of the same functionality. However it implements websockets using socketio.
+
 Build Instructions
 1. Download latest project from the main branch 
 2. cd into rust 
@@ -23,14 +25,13 @@ Sources Used:
 4. https://medium.com/@stheodorejohn/handling-browser-refresh-in-react-best-practices-and-pitfalls-5d4451d579ff#:~:text=To%20stop%20the%20refresh%20process,confirmation%20message%20to%20the%20user.
 5. https://doc.rust-lang.org/book
 6. https://diesel.rs/guides
+7. https://www.youtube.com/watch?v=HEhhWL1oUTM (for creating the socketio functionality)
+8. https://www.youtube.com/watch?v=XZtlD_m59sM (for the refactoring of all the rust code)
 
 
 Functionality: 
 /login
 /registration 
-/forgot-password
-/verify-code 
-/changepassword 
 /chat 
 /userprofile 
 /adminpanel (cannot delete/modiy users on front end but can view all users)
@@ -40,11 +41,12 @@ Bugs:
 1. When user is updated, it is only updated in the users table. There are helper functions that update the username in messages and conversation
 but because the user update async function uses the rust match function, it can only successfully use one of these functions. This causes the conversation to disappear for the user who's username was changed and the user who is recieving ends up either having two conversations with the same person or a non functional conversation with the old username. 
 2. Admin panel: the isAdmin variable isn't being changed depending on the recieving payload. It stays the default value which is false. 
-3. Prone to refreshing which causes user to log out 
+3. Prone to refreshing which causes user to log out
+4. Currently the server and client are able to handle the "connect", "join", and "message" functionalities provided by socketio. However, while the server is able to emit to the client that a message was received, the client is not able to update it's messages. Whenever this was tried, react would return an error about the misuse of hooks.
 
 Other comments: 
 1. For testing, there are no test cases for the async functions, instead there are test functions for the helper functions that make up these async functions. 
-
+2. To use quick-dev.rs that is in the tests directory, open a new terminal and run this command from the rust directory: cargo watch -q -c -w tests/ -x "test -q quick_dev -- --nocapture" (doing this multiple times will return an error since the database is expecting unique emails and usernames.
 
 
 
