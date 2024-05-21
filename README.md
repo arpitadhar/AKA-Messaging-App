@@ -7,8 +7,8 @@ Build Instructions
 3. cargo install diesel_cli
 4. Make sure to have PSQL and create a database there using the CREATE DATABASE aka_project command
 5. echo DATABASE_URL=postgres://username:password@localhost/aka_project > .env
-6. diesel run migrations 
-7. diesel redo migrations 
+6. diesel migrations run 
+7. diesel migrations redo
 8. cargo run or cargo test to run the tests 
 9. in a new terminal cd into vite project 
 10. npm install vite 
