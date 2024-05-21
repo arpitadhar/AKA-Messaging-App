@@ -1,35 +1,18 @@
-// use anyhow::Result;
-// use serde_json::json;
+use router::create_router;
+use tracing::info;
+pub use self::error::{Error, Result};
+use tracing_subscriber::FmtSubscriber;
 
-// #[tokio::test]
-// async fn quick_dev() -> Result<()> {
-//     let hc = httpc_test::new_client("http://localhost:3000")?;
+mod router;
+mod routes;
+mod database;
+mod error;
 
-//     hc.do_get("/hello").await?.print().await?;
-
-//     let req_create_user = hc.do_post(
-//         "/create-user",
-//         json!({
-//             "username": "c",
-//             "password": "a",
-//             "first_name": "a",
-//             "last_name": "a",
-//             "email": "e@e.com",
-//         })
-//     );
-
-//     req_create_user.await?.print().await;
-
-//     let req_create_message = hc.do_post(
-//         "/create-message",
-//         json!({
-//             "user_id": "a",
-//             "message": "test message",
-//             "conversation_id": "test_id"
-//         })
-//     );
-
-//     req_create_message.await?.print().await;
-
-//     Ok(())
-// }
+pub async fn run() {
+    tracing::subscriber::set_global_default(FmtSubscriber::default());
+    let app = create_router();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    println!("->> LISTENING on {:?}\n", listener.local_addr());
+    axum::serve(listener, app).await.unwrap();
+    info!("Starting Server!");
+}
