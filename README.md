@@ -46,7 +46,7 @@ but because the user update async function uses the rust match function, it can 
 
 Other comments: 
 1. For testing, there are no test cases for the async functions, instead there are test functions for the helper functions that make up these async functions. 
-2. To use quick-dev.rs that is in the tests directory, open a new terminal and run this command from the rust directory: cargo watch -q -c -w tests/ -x "test -q quick_dev -- --nocapture" (doing this multiple times will return an error since the database is expecting unique emails and usernames.
+2. To use quick-dev.rs that is in the tests directory, open a new terminal and run this command from the rust directory: cargo watch -q -c -w tests/ -x "test -q quick_dev -- --nocapture" (doing this multiple times will return an error since the database is expecting unique emails and usernames.If it runs but nothing is printed in the terminal, changing anything in the quick_dev.rs file will cause it to run and print the results to the terminal.
 
 
 
