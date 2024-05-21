@@ -3,9 +3,10 @@
     flex-direction: column; 
     width: 100vw; 
     height: 100vh; 
-    background: linear-gradient(45deg, #97D1Ab, #417165, #5D3B5A, #341C36, #2A142C); 
-    background-size: 300% 300%; 
-    animation: color 7s ease-in-out infinite;  
+    background: url('/Users/arpitadhar/Downloads/AKA-Messaging-App-new-react/vite-project/src/northern-lights.jpg')
+    no-repeat;
+    background-size: cover;
+    background-position: center;
     font: white; 
 }
 
@@ -36,19 +37,17 @@
 
 .menu{
     border-right: 1px solid rgba(255, 255, 255, 0);
-    height: 30px; 
 }
 
 .menu1{
     background-color:  rgba(176, 241, 202, 0.5);
     width: 300px; 
     float: top; 
-    height: 90px; 
      
 }
 .SideMenu{
     margin-top: -20px; 
-    height: 90vh; 
+    height: 100vh; 
     background-color:  rgba(176, 241, 202, 0.5);
 }
 
@@ -60,44 +59,12 @@
     margin-top: -20px; 
     display: inline-flex;
     justify-content: space-evenly;
-    flex-direction: column;
-    margin-left: 50px;
-    position: relative; 
-    overflow: auto;
+    align-items: center;
 }
 
 .boxes{
     background-color: rgba(176, 241, 202, 0.5);
     height: 150px;
-    width: 1000px; 
-    border-radius: 30px; 
-    text-align: center;
-    display: flex; 
-    color: white;
-    justify-content: space-between;
-}
-
-.pfp{
-    background-color: rgba(176, 241, 202, 0.5);
-    height: 150px;
     width: 150px; 
     border-radius: 30px; 
-    justify-content: center;
-   
-}
-
-.inside{
-    text-align: center;
-    display: flex; 
-}
-
-.user-name{
-    text-align: center;
-    font-size: 30px;
-}
-
-.user-buttons{
-    margin-top: 5px;
-    display: flex; 
-    justify-content: space-evenly;
 }

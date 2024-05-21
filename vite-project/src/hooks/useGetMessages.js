@@ -12,29 +12,28 @@ const useGetMessages = () => {
       const getMessages = async () => {
         setLoading(true)
         try{
-            const res = await fetch("http://localhost:3000/messages", {
+            const res = await fetch("http://localhost:3000/list-messages", {
                 method: "POST", 
                 headers: {
                     "Content-Type": "application/json"
                 }, 
                 body: JSON.stringify(selectedConversation.id)
-            })
+            });
             const data = await res.json(); 
-            console.log(selectedConversation.id); 
+            console.log("useGetMessage: ", selectedConversation.id); 
             if(data.error) throw new Error(data.error);
             setMessages(transformMessages(data));
-            //setMessages(data); 
             }
             catch (error) {
               toast.error(error.message);
             } finally {
               setLoading(false);
             }
-          }
+          };
       if(selectedConversation?.id) getMessages();
   }, [selectedConversation?.id, setMessages]);
-  return {messages, loading};
-}
+  return {messages, loading, setMessages};
+};
 export default useGetMessages;
 
 const transformMessages = (data) => {

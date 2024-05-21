@@ -2,14 +2,15 @@ import {useState, useEffect} from 'react';
 import "./conversation.css"; 
 import useConversation from "../../hooks/useConversation"; 
 
-const Conversation = ({conversation}) => {
+const Conversation = ({conversation, socket}) => {
     const {selectedConversation, setSelectedConversation} = useConversation(); 
     const isSelected = selectedConversation?.id === conversation.id; 
-    const user1 = localStorage.getItem("email"); 
+    const user1 = sessionStorage.getItem("email"); 
     const user = user1.replace(/^"(.*)"$/, '$1');
     const handleSelectedConversation = () => {
       setSelectedConversation(conversation); 
-    }; 
+      socket.emit("join",conversation.id);
+    };  
     console.log(selectedConversation);
     let whichUser = ""; 
     if(conversation.user2_id === user){

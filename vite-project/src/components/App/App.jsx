@@ -11,11 +11,12 @@ import './App.css';
 import Navbar from "../Navbar/Navbar";
 import AdminPanel from "../AdminPanel/adminPanel";
 import Chat from "../Chat/chat";
-//import Users from "../AdminPanel/adminRoutes/users"; 
+import Users from "../AdminPanel/adminRoutes/users"; 
 import ForgotPassword from "../ForgotPassword/forgot";
 import {} from "antd"; 
 import VerifyCode from "../ForgotPassword/verify_code";
-import UserProfile from "../UserProfile/UserProfile";
+import socketIO from "socket.io-client"
+import useConversation from "../../hooks/useConversation"; 
 
 export default function AppContainer() {
   return (
@@ -23,12 +24,19 @@ export default function AppContainer() {
   );
 }
 
-
+const socket  = socketIO.connect("http://localhost:3000");
 function App() {
+  const setSocket = useConversation(state => state.setSocket);
   const [user, setUser] = useState(false); 
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
+
+  useEffect(() => {
+    setSocket(socket);
+    return() => {socket.disconnect();};
+  }, [setSocket])
+
   const handleLogout = () => {
-    localStorage.clear(); 
+    sessionStorage.clear(); 
     setIsLoggedIn(false); 
   };
   return (
@@ -49,10 +57,10 @@ function App() {
                                             setUser={setUser} />} />
           <Route path="/forgot" element={<ForgotPassword />} />
           <Route path="/verify" element={<VerifyCode />} /> 
-          <Route path="/chat" element={<Chat isLoggedIn = {isLoggedIn}/>} />
+          <Route path="/chat" element={<Chat socket={socket} isLoggedIn = {isLoggedIn}/>} />
           <Route path="/aboutus" element={<AboutUs/>} />
-          <Route path="chat/adminpanel" element={<AdminPanel/>} />
-          <Route path="chat/user" element={<UserProfile user={user} isLoggedIn = {isLoggedIn} />}/>
+          <Route path="/adminpanel" element={<AdminPanel/>} />
+          <Route path="/users" element={<Users/>} />
           <Route path="*" element={<NotFound />} />
           <Route path="/denied" element={<AccessForbidden />} />
         </Routes>

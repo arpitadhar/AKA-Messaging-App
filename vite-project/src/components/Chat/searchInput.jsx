@@ -1,12 +1,12 @@
 import { IoSearch } from "react-icons/io5";
 import { useEffect, useState } from "react";
 
-const SearchInput = () =>{
+const SearchInput = ( {getConversations} ) =>{
     const [receiverName, setReceiverName] = useState('');
 
     useEffect(() => {
         const handleClick = () => {
-            const senderUser = localStorage.getItem("email");
+            const senderUser = sessionStorage.getItem("email");
             const senderName = senderUser.replace(/^"(.*)"$/, '$1');
             console.log(receiverName); 
             // Make create-conversation API call
@@ -15,7 +15,7 @@ const SearchInput = () =>{
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username_sender: senderName, username_receiver: receiverName })
+                body: JSON.stringify({ user_sender: senderName, user_receiver: receiverName })
             })
             .then(response => {
                 if (!response.ok) {
@@ -28,6 +28,7 @@ const SearchInput = () =>{
                 setReceiverName(''); // Reset input value
                 // Refresh conversation list after creating a new conversation
                 //refreshConversationList(); // Added refresh
+                getConversations();
             })
             .catch(error => {
                 console.error("Error creating conversation:", error);

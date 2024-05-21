@@ -1,11 +1,18 @@
-import { create } from "zustand"; 
+import { create } from 'zustand';
 
 const useConversation = create((set) => ({
-    selectedConversation: null, 
-    setSelectedConversation: (conversation) => set({
-        selectedConversation: conversation}), 
-        messages: [], 
-        setMessages: (messages) => set({ messages }), 
-})); 
+  socket: null,
+  setSocket: (socket) => set({ socket }),
 
-export default useConversation; 
+  selectedConversation: null,
+  setSelectedConversation: (conversation) => set((state) => {
+    
+    state.socket.emit('join', conversation);
+    return { selectedConversation: conversation };
+  }),
+
+  messages: [],
+  setMessages: (messages) => set({ messages }),
+}));
+
+export default useConversation;

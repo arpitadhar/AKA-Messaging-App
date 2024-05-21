@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
 import "./chat.css"; 
 import MessageContainer from "./messageContainer";
-import SearchInput from "./searchInput"; 
 import Sidebar from "./SideBar"; 
-import { useNavigate } from 'react-router-dom'; 
-import { TinyColor } from '@ctrl/tinycolor';
-import { Button, ConfigProvider, Space } from 'antd';
+import useConversation from "../../hooks/useConversation";
 
-// const navigate = useNavigate();
-export default function Chat({ isLoggedIn }) {
-    //console.log(props.user);
-    //const navigate = useNavigate(); 
+export default function Chat({ isLoggedIn,socket:propSocket }) {
+    const socket = useConversation(state=>state.socket);
     useEffect(() => {
       console.log("isLoggedIn in Chat component:", isLoggedIn);
     }, [isLoggedIn]);
@@ -18,9 +13,9 @@ export default function Chat({ isLoggedIn }) {
         return (
             <div className="chat_body">
                 <div className='flex sm:h-[450px] md:h-[550px] rounded-lg overflow-hidden bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0'>
-                    <Sidebar/>
+                    <Sidebar socket={propSocket}/>
                 </div>
-                <MessageContainer/>
+                <MessageContainer socket={propSocket}/>
             </div>
         );
     } else {

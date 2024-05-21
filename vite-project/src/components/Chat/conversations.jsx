@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Conversation from "./conversation"; 
 import toast from 'react-hot-toast'; 
 import { Flex, Spin } from "antd";
-const Conversations = () => {
+const Conversations = forwardRef(({socket},ref) => {
     const [loading, setLoading] = useState(false);
     const [conversations, setConversations] = useState([]); 
-    const usernameDefault = localStorage.getItem("email");
+    const usernameDefault = sessionStorage.getItem("email");
     const user = usernameDefault.replace(/^"(.*)"$/, '$1');
-    useEffect(() => {
+
         const getConversations = async () => {
             setLoading(true); 
             try {
                 const payload = { user};
                 console.log("Sending payload:", payload);
 
-                const res = await fetch("http://localhost:3000/conversations", {
+                const res = await fetch("http://localhost:3000/list-conversations", {
                     method: 'POST', 
                     headers: {
                         'Content-Type': 'application/json'
@@ -37,9 +37,16 @@ const Conversations = () => {
             } finally {
                 setLoading(false); 
             }
-        }
+    }; 
+    
+    useImperativeHandle(ref, () => ({
+        getConversations
+    }));
+
+    useEffect(() => {
         getConversations();
     }, [user]); 
+
     const transformConversations = (data) => {
         if (Array.isArray(data)) {
             return data; 
@@ -55,10 +62,10 @@ const Conversations = () => {
  
     return(
         <div className='py-2 flex flex-col overflow-auto'>
-            {transformConversations(conversations).map((conversation) => ( //add ,idx if needed
+            {transformConversations(conversations).map((conversation) => ( 
               <Conversation key ={conversation.id}
               conversation={conversation}
-            //   lastIdx = {idx === conversations.length - 1}
+              socket={socket}
               />
 
            ))} 
@@ -71,5 +78,5 @@ const Conversations = () => {
 
         </div>
     );
-}
+});
 export default Conversations
