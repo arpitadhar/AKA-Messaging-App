@@ -23,6 +23,7 @@ pub struct Users {
     pub email: String,
     pub password: String,
     pub is_admin: Option<bool>,
+    pub img_url: String,
     //pub logged_in: Option<bool>,
 }
 

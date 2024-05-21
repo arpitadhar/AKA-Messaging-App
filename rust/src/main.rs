@@ -64,6 +64,7 @@ async fn main() {
         .route("/update-username", post(update_username))
         .route("/update-first", post(update_first))
         .route("/update-last", post(update_last))
+        .route("/update-img", post(update_img))
         .route("/create-flag", post(create_flagged_user))
         .route("/flagged", get(list_flagged))
         //allows frontend to communicate with backend
@@ -134,6 +135,7 @@ async fn create_user(
         email: " ".to_string(), 
         password: " ".to_string(), 
         is_admin: false, 
+        img_url: " ".to_string(),
     }; 
     let connection = &mut establish_connection();
     if check_email_exists(connection, &payload.email){
@@ -159,6 +161,7 @@ async fn create_user(
         email: payload.email, 
         password: hashed_password,  
         is_admin: payload.is_admin, 
+        img_url: "".to_string(),
     }; 
     
     append_string_to_file("users.json", serde_json::to_string_pretty(&new_user).unwrap()).expect("Unable to read file");
@@ -349,6 +352,7 @@ async fn login(
         email: " ".to_string(), 
         password: " ".to_string(), 
         is_admin: false, 
+        img_url: " ".to_string(),
     }; 
     if user_exists {
         let hashed_password = match get_hashed_password_for_email(connection, &payload.email) {
@@ -390,6 +394,7 @@ async fn retrieve_user_information(Json(payload): Json<String>
         email: " ".to_string(), 
         password: " ".to_string(), 
         is_admin: false, 
+        img_url: " ".to_string(),
     }; 
     println!("1?");
     let email_response = retrieve_email(connection, &payload).expect("reason").to_string();
@@ -402,6 +407,8 @@ async fn retrieve_user_information(Json(payload): Json<String>
     let user_lastname = retrieve_lastname(connection, &email_response).expect("reason").to_string();
     let user_password = retrieve_password(connection, &email_response).expect("reason").to_string(); 
     let user_admin = retrieve_isadmin(connection, &email_response); 
+    let user_img_url = retrieve_img(connection, &email_response).expect("reason").to_string();
+    println!("{}", user_admin); 
     let default_user1 = User{
         username: payload, 
         first_name: user_firstname, 
@@ -409,6 +416,7 @@ async fn retrieve_user_information(Json(payload): Json<String>
         email: email_response, 
         password: user_password, 
         is_admin: user_admin, 
+        img_url: user_img_url,
     }; 
     if user_exists{
         //let response_json = serde_json::to_string(default_user1).expect("Error serializing");
@@ -616,6 +624,29 @@ async fn update_last(Json(payload): Json<InputEmail>) -> (StatusCode, Json<Strin
             Ok(rows_affected) => {
                 if rows_affected > 0 {
                     return (StatusCode::OK, Json("Last name updated successfully".to_string()));
+                } else {
+                    return (StatusCode::NOT_FOUND, Json("User not found".to_string()));
+                }
+            }
+            Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, Json("Internal server error".to_string())),
+    }
+}
+
+//update profile img route, takes email payload and new img url, returns a status code and a string 
+async fn update_img(Json(payload): Json<NewImage>) -> (StatusCode, Json<String>){
+    use schema::users::dsl::*; 
+    let connection: &mut PgConnection = &mut establish_connection();
+    //let new_img = &payload.new_img; 
+    let update_row = diesel::update(users.filter(email.eq(&payload.email)))
+        .set(img_url.eq(&payload.new_img));
+
+    println!("{}", diesel::debug_query::<diesel::pg::Pg, _>(&update_row).to_string());
+
+        //.get_result(connection);
+    match update_row.execute(connection) {
+            Ok(rows_affected) => {
+                if rows_affected > 0 {
+                    return (StatusCode::OK, Json("Profile image updated successfully".to_string()));
                 } else {
                     return (StatusCode::NOT_FOUND, Json("User not found".to_string()));
                 }
@@ -856,6 +887,14 @@ fn retrieve_password(conn: &mut PgConnection, email_input: &str) -> Option<Strin
     }
 }
 
+//retrieves image url from database using email  
+fn retrieve_img(conn: &mut PgConnection, email_input: &str) -> Option<String>{
+    use schema::users::dsl::*; 
+    match users.filter(email.eq(email_input)).select(img_url).first::<String>(conn)  {
+        Ok(img_1) => Some(img_1), 
+        Err(_) => None,
+    }
+}
 
 //lists all the conversations based on the username provided 
 
@@ -932,7 +971,7 @@ struct User {
     email: String, 
     password: String, 
     is_admin: bool, 
-
+    img_url: String,
 }
 #[derive(Deserialize, Debug)]
 struct CreateFlagged {
@@ -975,6 +1014,12 @@ struct InputEmail{
 }
 
 #[derive(Deserialize)]
+struct NewImage{
+    email: String, 
+    new_img: String, 
+}
+
+#[derive(Deserialize)]
 struct UpdateUser{
     email: String, 
     username_old: String, 
@@ -1000,6 +1045,8 @@ struct CreateConversation {
 
 #[cfg(test)]
 mod tests{
+    use crate::schema::users::img_url;
+
     use super::*; 
     #[test]
     fn test_insert_users(){
@@ -1007,6 +1054,14 @@ mod tests{
         let result = insert_user(connection, "user12", "first1", "last1", "email21@gmail.com", "$2b$12$MlheoaYoWveoSqRnq7FhB.tqQaPHguXRiCGuw18IMWOGyhV7yM1ba", false); 
         let result = insert_user(connection, "username122", "first2", "last2", "email22@gmail.com", "$2b$12$MlheoaYoWveoSqRnq7FhB.tqQaPHguXRiCGuw18IMWOGyhV7yM1ba", false); 
         let expected_result = Ok(1); 
+        assert_eq!(result, expected_result); 
+    }
+    //after new users are inserted check to see if default profile images were placed in the user table 
+    #[test]
+    fn test_profile_image(){
+        let connection = &mut establish_connection();
+        let result = retrieve_img(connection, "email21@gmail.com"); 
+        let expected_result = Some("https://fastly.picsum.photos/id/0/5000/3333.jpg?hmac=_j6ghY5fCfSD6tvtcV74zXivkJSPIfR9B8w34XeQmvU".to_string()); 
         assert_eq!(result, expected_result); 
     }
     #[test]

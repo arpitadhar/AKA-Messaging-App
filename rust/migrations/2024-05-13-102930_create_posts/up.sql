@@ -20,7 +20,8 @@ first_name  TEXT NOT NULL,
 last_name   TEXT NOT NULL,
 email       TEXT NOT NULL UNIQUE CHECK (POSITION('@' IN EMAIL) > 1),
 password    TEXT NOT NULL,
-is_admin    BOOLEAN DEFAULT FALSE
+is_admin    BOOLEAN DEFAULT FALSE,
+img_url     TEXT DEFAULT 'https://fastly.picsum.photos/id/0/5000/3333.jpg?hmac=_j6ghY5fCfSD6tvtcV74zXivkJSPIfR9B8w34XeQmvU' NOT NULL
 );
 
 

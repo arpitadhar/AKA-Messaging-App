@@ -34,6 +34,7 @@ diesel::table! {
         email -> Text,
         password -> Text,
         is_admin -> Nullable<Bool>,
+        img_url -> Text,
     }
 }
 
