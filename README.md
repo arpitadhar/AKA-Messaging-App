@@ -43,6 +43,7 @@ but because the user update async function uses the rust match function, it can 
 2. Admin panel: the isAdmin variable isn't being changed depending on the recieving payload. It stays the default value which is false. 
 3. Prone to refreshing which causes user to log out
 4. Currently the server and client are able to handle the "connect", "join", and "message" functionalities provided by socketio. However, while the server is able to emit to the client that a message was received, the client is not able to update it's messages. Whenever this was tried, react would return an error about the misuse of hooks.
+5. While testing, the socket would sometimes disconnect and only reconnect when performing ctrl+s in the App.jsx, as well as in useSendMessage.js. 
 
 Other comments: 
 1. For testing, there are no test cases for the async functions, instead there are test functions for the helper functions that make up these async functions. 
