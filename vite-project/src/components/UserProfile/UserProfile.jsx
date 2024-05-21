@@ -47,7 +47,8 @@ export default function UserProfile({isLoggedIn})  {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [first, setFirst] = useState(""); 
     const [last, setLast] = useState(""); 
-    const [username, setUsername] = useState(""); 
+    const [username, setUsername] = useState("");
+    const [profileImg, setProfileImg] = useState(""); 
     const [email1, setEmail] = useState(""); 
     const user1 = localStorage.getItem("email"); 
     const user = user1.replace(/^"(.*)"$/, '$1');
@@ -77,6 +78,7 @@ export default function UserProfile({isLoggedIn})  {
       setLast(data.last_name); 
       setUsername(data.username); 
       setEmail(data.email);
+      setProfileImg(data.img_url);
       let userInfo = localStorage.getItem("user-info");
       console.log(userInfo.first_name); 
      })
@@ -287,6 +289,35 @@ export default function UserProfile({isLoggedIn})  {
     }
 
 
+    const handleImageChange = (event) => {
+        event.preventDefault();
+        const newImgUrl = document.getElementById("change_imgurl").value;
+            const infoRequest = fetch("http://localhost:3000/update-img", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email: email1, new_img: newImgUrl})
+          })
+            .then(response => {
+                if (!response.ok) {
+                throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error("Error changing profile image:", error);
+                alert("Error changing image: " + error.message);
+            });
+        
+    
+        document.getElementById("confirmPassword").value("");
+        document.getElementById("newPassword").value("");
+    }
+
     //const handleSubmit = (event) => {
     //    event.preventDefault();
 //
@@ -403,11 +434,14 @@ export default function UserProfile({isLoggedIn})  {
             									<div className="square position-relative display-2 mb-3">
             										<i className="fas fa-fw fa-user position-absolute top-50 start-50 translate-middle text-secondary"></i>
             									</div>
-            									<input type="file" id="customFile" name="file" hidden=""/>
-            									<label className="btn btn-success btn-block" for="customFile">Upload</label>
-                                                <br></br>
-            									<button type="button" id = "remove" className="btn btn-danger btn-sm">Remove</button>
-            									<p className="text-muted mt-3 mb-0"><span class="me-1">Note:</span>Minimum size 300px x 300px</p>
+                                                <div className="">
+                                                    <img className="h-100 rounded-circle" src={profileImg}/>
+                                                </div>
+                                                <br/><br/>
+            									<input type="text" id="change_imgurl"/>
+                                                <br/><br/>
+            									<button className="btn btn-success btn-block" id="change_img" onClick={handleImageChange}>Upload</button>
+            									<p className=" mt-3 mb-0"><span class="me-1">Note:</span>Minimum size 300px x 300px</p>
             								</div>
             							</div>
             						</div>

@@ -32,10 +32,23 @@
     width: 50%; 
 }
 
-#remove{
+#change_img{
     width: 30%; 
+}
+
+#change_imgurl{
+    width: 100%; 
 }
 
 #remove-profile{
     background-color: maroon;
+}
+
+img {
+    display: 'inline-block';
+    width: '350px';
+    height: '350px';
+    border-radius: '25%';
+    object-fit: 'cover';
+    overflow:hidden;
 }
